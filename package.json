@@ -4,8 +4,7 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "dev:front": "turbo dev --filter=front-end",
-    "dev:nextjs": "turbo dev --filter=my-project",
+    "dev:front": "turbo dev --filter=front",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo check-types"
