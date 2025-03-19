@@ -7,18 +7,19 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
+import { UserRole, UserStatus } from '@repo/shared-types';
+
 // Define the user roles as an enum
-export const UserRole = pgEnum('role', [
-  'SUPER_ADMIN',
-  'LEAVE_ADMIN',
-  'WORK_CERTIFICATION_ADMIN',
-  'CLASS_ATTENDANCE_ADMIN',
-  'TEACHER',
-  'GENERAL_STAFF',
-]);
+export const UserRoleEnum = pgEnum(
+  'role',
+  Object.values(UserRole) as [string, ...string[]],
+);
 
 // Define the user status as an enum
-export const UserStatus = pgEnum('status', ['ACTIVE', 'INACTIVE', 'SUSPENDED']);
+export const UserStatusEnum = pgEnum(
+  'status',
+  Object.values(UserStatus) as [string, ...string[]],
+);
 
 // Define the users table schema
 export const users = pgTable(
@@ -28,8 +29,8 @@ export const users = pgTable(
     email: varchar('email', { length: 255 }).notNull().unique(), // Unique email
     password: varchar('password', { length: 255 }).notNull(), // Hashed password
     full_name: varchar('full_name', { length: 255 }).notNull(), // User's full name
-    role: UserRole().notNull(), // User role
-    status: UserStatus().default('ACTIVE').notNull(), // Account status
+    role: UserRoleEnum().notNull(), // User role
+    status: UserStatusEnum().default('ACTIVE').notNull(), // Account status
     last_login: timestamp('last_login'), // Timestamp for last login
     profile_picture_url: varchar('profile_picture_url', {
       length: 255,

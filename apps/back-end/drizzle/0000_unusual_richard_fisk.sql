@@ -1,5 +1,5 @@
-CREATE TYPE  "public"."role" AS ENUM('SUPER_ADMIN', 'LEAVE_ADMIN', 'WORK_CERTIFICATION_ADMIN', 'CLASS_ATTENDANCE_ADMIN', 'TEACHER', 'GENERAL_STAFF');--> statement-breakpoint
-CREATE TYPE  "public"."status" AS ENUM('ACTIVE', 'INACTIVE', 'SUSPENDED');--> statement-breakpoint
+CREATE TYPE "public"."role" AS ENUM('SUPER_ADMIN', 'LEAVE_ADMIN', 'WORK_CERTIFICATION_ADMIN', 'CLASS_ATTENDANCE_ADMIN', 'TEACHER', 'GENERAL_STAFF');--> statement-breakpoint
+CREATE TYPE "public"."status" AS ENUM('ACTIVE', 'INACTIVE', 'SUSPENDED');--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"email" varchar(255) NOT NULL,
