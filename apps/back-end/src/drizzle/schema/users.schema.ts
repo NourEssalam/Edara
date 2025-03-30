@@ -5,6 +5,7 @@ import {
   timestamp,
   pgEnum,
   uniqueIndex,
+  text,
 } from 'drizzle-orm/pg-core';
 
 import { UserRole, UserStatus } from '@repo/shared-types';
@@ -37,6 +38,7 @@ export const users = pgTable(
     }), // URL for profile picture
     created_at: timestamp('created_at').defaultNow().notNull(), // Timestamp for account creation
     updated_at: timestamp('updated_at').defaultNow().notNull(), // Timestamp for last update
+    hashed_refresh_token: text('hashed_refresh_token'),
   },
   (table) => [uniqueIndex('email_idx').on(table.email)],
 );

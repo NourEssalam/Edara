@@ -2,12 +2,12 @@
 import { z } from "zod";
 
 export const signUpSchema = z.object({
-  username: z
+  full_name: z
     .string()
     .min(5, "Username must be at least 5 characters long")
     .regex(
-      /^[a-zA-Z0-9]+$/,
-      "Username must only contain alphanumeric characters"
+      /^[a-zA-Z0-9 ]+$/,
+      "Username must only contain alphanumeric characters and spaces"
     ),
 
   email: z.string().email("Invalid email address"),
@@ -33,21 +33,7 @@ export const signUpSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  identifier: z.union([
-    // Username validation
-    z
-      .string()
-      .min(5, "Username must be at least 5 characters long")
-      .regex(
-        /^[a-zA-Z0-9]+$/,
-        "Username must only contain alphanumeric characters"
-      )
-      .describe("username"),
-
-    // Email validation
-    z.string().email("Invalid email format").describe("email"),
-  ]),
-
+  email: z.string().email("Invalid email address"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters long")
