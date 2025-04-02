@@ -14,10 +14,10 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
-  if (!session || !session.user) {
-    redirect("/login");
-  }
+  // const session = await getSession();
+  // if (!session || !session.user) {
+  //   redirect("/login");
+  // }
 
   return (
     <ThemeProvider

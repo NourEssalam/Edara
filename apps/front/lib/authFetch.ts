@@ -1,8 +1,8 @@
-import { refreshToken } from "@/app/(auth)/actions/refreshToken";
 import { getSession } from "./session";
 
 export interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;
+  credentials?: RequestCredentials;
 }
 
 export const authFetch = async (
@@ -10,25 +10,25 @@ export const authFetch = async (
   options: FetchOptions = {}
 ) => {
   const session = await getSession();
-  console.log("old refresh token", session?.refreshToken);
+
   options.headers = {
     ...options.headers,
     Authorization: `Bearer ${session?.accessToken}`,
   };
+  options.credentials = "include";
 
   let response = await fetch(url, options);
 
+  // If unauthorized, let the middleware handle token refresh
   if (response.status === 401) {
-    if (!session?.refreshToken) {
-      throw new Error("refresh token not found!");
-    }
+    console.log(
+      "%c Token expired, middleware should refresh it",
+      "color: orange;"
+    );
 
-    const newAccessToken = await refreshToken(session.refreshToken);
-
-    if (newAccessToken) {
-      options.headers.Authorization = `Bearer ${newAccessToken}`;
-      response = await fetch(url, options);
-    }
+    // Retry the request, middleware will update session automatically
+    response = await fetch(url, options);
   }
+
   return response;
 };

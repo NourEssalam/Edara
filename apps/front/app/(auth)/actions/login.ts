@@ -15,7 +15,7 @@ export async function onSubmitAction(
   // Get the form data
   const formData = Object.fromEntries(data);
   const parsed = loginSchema.safeParse(formData);
-
+  console.log("parsed", parsed);
   if (!parsed.success) {
     const fields: Record<string, string> = {};
     for (const key of Object.keys(formData)) {

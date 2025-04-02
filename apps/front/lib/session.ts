@@ -6,27 +6,19 @@ import { redirect } from "next/navigation";
 import { encodedKey } from "./constants";
 import { Session, User } from "@/types/auth-types";
 
-export async function createSession(payload: Session, update?: boolean) {
+export async function createSession(payload: Session) {
   const expiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-
-  console.log("new refrsh token", payload.refreshToken);
+  console.log("########## Create Session ##########");
+  const cookieStore = await cookies();
   const session = await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
     .sign(encodedKey);
 
-  const cookieStore = await cookies();
-
-  if (update) {
-    await cookieStore.delete("session");
-    // Add a small delay to ensure deletion is processed
-    await new Promise((resolve) => setTimeout(resolve, 10));
-  }
-
   cookieStore.set("session", session, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     expires: expiredAt,
     sameSite: "lax",
     path: "/",
@@ -71,5 +63,5 @@ export async function updateTokens({
     accessToken, // new access token
     refreshToken, // new refresh token
   };
-  await createSession(newPayload, true);
+  await createSession(newPayload);
 }
