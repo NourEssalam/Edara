@@ -30,7 +30,7 @@ export const users = pgTable(
     email: varchar('email', { length: 255 }).notNull().unique(), // Unique email
     password: varchar('password', { length: 255 }).notNull(), // Hashed password
     full_name: varchar('full_name', { length: 255 }).notNull(), // User's full name
-    role: UserRoleEnum().notNull(), // User role
+    role: UserRoleEnum().notNull().default('GENERAL_STAFF'), // User role
     status: UserStatusEnum().default('ACTIVE').notNull(), // Account status
     last_login: timestamp('last_login'), // Timestamp for last login
     profile_picture_url: varchar('profile_picture_url', {

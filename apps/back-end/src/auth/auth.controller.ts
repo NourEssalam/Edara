@@ -10,9 +10,10 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { FirstSuperAdminDto } from 'src/user/dto/first-super-admin.dto';
 import { LocalAuthGuard } from './local-auth/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
-
+import { Public } from './decorators/public.decorator';
+import { Roles } from './decorators/roles.decorator';
+import { UserRole } from '@repo/shared-types';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -30,6 +31,7 @@ export class AuthController {
   }
 
   // Login
+  @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Request() req): unknown {
@@ -43,14 +45,19 @@ export class AuthController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles(
+    UserRole.TEACHER,
+    UserRole.GENERAL_STAFF,
+    UserRole.CLASS_ATTENDANCE_ADMIN,
+  )
   @Get('protected')
   getAll() {
     return {
-      message: 'This is a protected route',
+      message: 'profile page',
     };
   }
 
+  @Public()
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   refresh(@Request() req) {
@@ -65,9 +72,14 @@ export class AuthController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('logout')
   logout(@Request() req) {
+    console.log('id from logout', req.user.id);
     return this.authService.logout(req.user.id);
+  }
+
+  @Get('check-access')
+  checkAccess() {
+    return 'Access Granted';
   }
 }

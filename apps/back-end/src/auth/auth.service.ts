@@ -107,7 +107,7 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('oops user not found');
     // if (user.status === 'SUSPENDED')
     //   throw new UnauthorizedException('user is suspended');
-    const currentuser = user ? { id: user.id } : null;
+    const currentuser = user ? { id: user.id, role: user.role } : null;
     return currentuser;
   }
 
@@ -176,6 +176,8 @@ export class AuthService {
   ////////////////////
   /// LOGOUT
   async logout(userId: number) {
+    console.log('id from logout', userId);
+
     console.log('logout');
     return await this.userService.updateHashedRefreshToken(userId, null);
   }
