@@ -3,6 +3,7 @@ import { jwtVerify, SignJWT } from "jose";
 import { BACKEND_URL, encodedKey, expiredAt } from "./lib/constants";
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "./lib/session";
+import { cookies } from "next/headers";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -14,6 +15,9 @@ export async function middleware(req: NextRequest) {
   );
   const isApiRoute = apiRoutes.some((route) => pathname.startsWith(route));
 
+  // Check if the current request is to delete the session (logout)
+  const isLogoutRoute = pathname === "/api/auth/logout";
+
   if (
     req.headers.has("cookie") &&
     req.headers.get("cookie")?.includes("session=;")
@@ -24,22 +28,53 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const sessionValue = req.cookies.get("session")?.value;
-
-  // Check if the current request is to delete the session (logout)
-  const isLogoutRoute = pathname === "/api/auth/logout";
-
   // If this is a logout request, always allow it
   if (isLogoutRoute) {
     return NextResponse.next();
   }
 
+  if (isPublicRoute) {
+    const response = NextResponse.next();
+    response.headers.set("x-url", pathname);
+    return response;
+  }
+
+  const sessionValue = req.cookies.get("session")?.value;
+
   if (!sessionValue && !isPublicRoute && !isApiRoute) {
+    console.log("sessionValue", sessionValue);
+
     console.log("Middleware: Not authenticated, redirecting to login...");
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
   const oldPayload = await getSession(); // we use this because the sessionValue always true
+
+  if (pathname !== "/setup" && sessionValue) {
+    try {
+      const countUsers = await fetch(`${BACKEND_URL}/user/count`, {
+        method: "GET",
+      });
+
+      if (countUsers.ok) {
+        const count = await countUsers.json();
+        if (count === 0) {
+          const cookieStore = await cookies();
+
+          cookieStore.delete("session");
+          if (!sessionValue && !oldPayload) {
+            return NextResponse.redirect(new URL("/setup", req.url));
+          }
+        } else {
+          return NextResponse.next();
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      return NextResponse.next();
+    }
+  }
+
   // Redirect to dashboard if authenticated but on a public route
   if (
     oldPayload &&
@@ -53,7 +88,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  if (sessionValue) {
+  if (oldPayload && sessionValue && !isPublicRoute) {
     try {
       // Verify the session JWT
       const { payload } = await jwtVerify(sessionValue, encodedKey, {
