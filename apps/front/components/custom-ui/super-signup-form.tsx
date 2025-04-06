@@ -44,7 +44,7 @@ export function SuperSignupForm() {
     if (state?.message && state.message !== "") {
       if (state.message.includes("success")) {
         toast({
-          title: state.message,
+          title: "تم إنشاء حساب المدير العام بنجاح. يجب عليك تسجيل الدخول الآن",
           variant: "success",
         });
 
@@ -69,7 +69,9 @@ export function SuperSignupForm() {
       {state?.message !== "" &&
         !state.issues &&
         (state.message.includes("success") ? (
-          <p className="text-green-500 text-xl">{state.message}</p>
+          <p className="text-green-500 text-xl">
+            تم إنشاء حساب المدير العام بنجاح. يجب عليك تسجيل الدخول الآن
+          </p>
         ) : (
           <p className="text-red-500">{state.message}</p>
         ))}
@@ -90,7 +92,6 @@ export function SuperSignupForm() {
           ref={formRef}
           action={formAction}
           onSubmit={form.handleSubmit(() => {
-            // Use startTransition when manually dispatching the action
             startTransition(() => {
               formAction(new FormData(formRef.current!));
             });
@@ -98,16 +99,16 @@ export function SuperSignupForm() {
               // form.reset();
             }
           })}
-          className="rounded-lg border-amber-500 flex flex-col gap-4  bg-amber-200 p-6"
+          className="rounded-lg border-amber-500 flex flex-col gap-4 bg-amber-200 p-6"
         >
           <FormField
             control={form.control}
             name="full_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full name</FormLabel>
+                <FormLabel>الاسم الكامل</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your full name" {...field} />
+                  <Input placeholder="أدخل اسمك الكامل" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -118,26 +119,23 @@ export function SuperSignupForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>البريد الإلكتروني</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your email" {...field} />
+                  <Input placeholder="أدخل بريدك الإلكتروني" {...field} />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>كلمة المرور</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter password" {...field} />
+                  <Input placeholder="أدخل كلمة المرور" {...field} />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
@@ -147,18 +145,16 @@ export function SuperSignupForm() {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
+                <FormLabel>تأكيد كلمة المرور</FormLabel>
                 <FormControl>
-                  <Input placeholder="Confirm password" {...field} />
+                  <Input placeholder="أعد إدخال كلمة المرور" {...field} />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <Button disabled={isPending} type="submit">
-            Submit
+            إرسال
           </Button>
         </form>
       </Form>

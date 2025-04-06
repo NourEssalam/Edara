@@ -31,7 +31,7 @@ export async function onSubmitAction(
 
   if (parsed.data.password !== parsed.data.confirmPassword) {
     return {
-      message: "Passwords do not match",
+      message: "كلمتا المرور غير متطابقتين",
       fields: {
         password: parsed.data.password,
         confirmPassword: parsed.data.confirmPassword,
@@ -55,16 +55,20 @@ export async function onSubmitAction(
     } else {
       // Handle non-2xx responses
       const errorData = await response.json().catch(() => null);
-      return {
+      console.log({
         message:
           errorData?.message ||
           `Error: ${response.status} ${response.statusText}`,
+      });
+      return {
+        message: "يرجى التحقق من اتصالك بالإنترنت وحاول مرة أخرى",
       };
     }
   } catch (e) {
     console.error("Error when setup super admin", e);
+    console.log(e instanceof Error ? e.message : "Something went wrong");
     return {
-      message: e instanceof Error ? e.message : "Something went wrong",
+      message: "حدث خطأ ما",
     };
   }
 }

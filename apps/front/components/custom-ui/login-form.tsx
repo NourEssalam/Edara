@@ -43,7 +43,7 @@ export function LoginForm() {
     if (state?.message && state.message !== "") {
       if (state.message.includes("success")) {
         toast({
-          title: state.message,
+          title: "لقد قمت بتسجيل الدخول بنجاح",
           variant: "success",
         });
 
@@ -68,7 +68,7 @@ export function LoginForm() {
       {state?.message !== "" &&
         !state.issues &&
         (state.message.includes("success") ? (
-          <p className="text-green-500 text-xl">{state.message}</p>
+          <p className="text-green-500 text-xl">لقد قمت بتسجيل الدخول بنجاح</p>
         ) : (
           <p className="text-red-500">{state.message}</p>
         ))}
@@ -89,7 +89,6 @@ export function LoginForm() {
           ref={formRef}
           action={formAction}
           onSubmit={form.handleSubmit(() => {
-            // Use startTransition when manually dispatching the action
             startTransition(() => {
               formAction(new FormData(formRef.current!));
             });
@@ -98,17 +97,17 @@ export function LoginForm() {
             }
           })}
           className="space-y-4 border p-6 rounded-lg flex flex-col gap-1 bg-amber-200 dark:bg-gray-800 dark:border-gray-700"
+          dir="rtl"
         >
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>البريد الإلكتروني</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your email" {...field} />
+                  <Input placeholder="أدخل بريدك الإلكتروني" {...field} />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
@@ -118,11 +117,10 @@ export function LoginForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>كلمة المرور</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter password" {...field} />
+                  <Input placeholder="أدخل كلمة المرور" {...field} />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
@@ -131,10 +129,10 @@ export function LoginForm() {
             className="text-right text-sm underline"
             href={"forgot-password"}
           >
-            Forgot password?
+            هل نسيت كلمة المرور؟
           </Link>
           <Button className="w-full" disabled={isPending} type="submit">
-            Submit
+            تسجيل الدخول
           </Button>
         </form>
       </Form>
