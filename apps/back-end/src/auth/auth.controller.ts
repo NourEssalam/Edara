@@ -19,12 +19,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   // This endpoint is for setting up the first super admin
+  @Public()
   @Post('setup')
   setupFirstAdmin(@Body() firstSuperAdminDto: FirstSuperAdminDto) {
     return this.authService.setupRegistration(firstSuperAdminDto);
   }
 
   // this endpoint is for registering a new user by a super admin
+  @Public()
   @Post('register')
   registerNewUser(@Body() createUserDto: CreateUserDto) {
     return this.authService.registerNewUser(createUserDto);

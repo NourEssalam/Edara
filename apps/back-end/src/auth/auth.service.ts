@@ -47,10 +47,11 @@ export class AuthService {
   // This is return the user object that the login method will take and append to the token
   async validateLocalUser(email: string, password: string) {
     const user = await this.userService.findOneByEmail(email);
-    if (!user[0]) throw new UnauthorizedException('user not found');
+    if (!user[0])
+      throw new UnauthorizedException('هذا البريد الإلكتروني غير مسجل');
     const isPasswordMatched = await verify(user[0].password, password);
     if (!isPasswordMatched)
-      throw new UnauthorizedException('Invalid Credentials');
+      throw new UnauthorizedException('كلمة المرور غير صحيحة');
 
     return {
       id: user[0].id,

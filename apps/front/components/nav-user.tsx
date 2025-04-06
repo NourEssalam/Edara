@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import {
   BellIcon,
@@ -61,8 +61,8 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg direction-rtl"
+            side={isMobile ? "bottom" : "left"}
             align="end"
             sideOffset={4}
           >
@@ -86,10 +86,7 @@ export function NavUser({
                 <UserCircleIcon />
                 <Link href="/profile">Profile</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCardIcon />
-                Billing
-              </DropdownMenuItem>
+
               <DropdownMenuItem>
                 <BellIcon />
                 Notifications
@@ -97,7 +94,6 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <LogOutIcon />
               <LogoutButton />
             </DropdownMenuItem>
           </DropdownMenuContent>
