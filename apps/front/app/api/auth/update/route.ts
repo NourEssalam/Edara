@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+// import { NextRequest } from "next/server";
 
-export async function POST(req: NextRequest) {
-  console.log("update token route handler ...");
+// export async function POST(req: NextRequest) {
+//   console.log("update token route handler ...");
 
-  return new Response("OK", { status: 200 });
-}
+//   return new Response("OK", { status: 200 });
+// }

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import {
-  ArrowUpCircleIcon,
+  // ArrowUpCircleIcon,
   BarChartIcon,
   CameraIcon,
   ClipboardListIcon,
@@ -32,7 +32,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { getSession } from "@/lib/session";
+// import { getSession } from "@/lib/session";
 
 const data = {
   user: {
