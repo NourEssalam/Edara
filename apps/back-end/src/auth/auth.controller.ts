@@ -14,6 +14,7 @@ import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { UserRole } from '@repo/shared-types';
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -47,13 +48,9 @@ export class AuthController {
     );
   }
 
-  @Roles(
-    UserRole.TEACHER,
-    UserRole.GENERAL_STAFF,
-    UserRole.CLASS_ATTENDANCE_ADMIN,
-  )
-  @Get('protected')
-  getAll() {
+  @Roles(UserRole.SUPER_ADMIN)
+  @Get('profile')
+  profile() {
     return {
       message: 'profile page',
     };
@@ -83,5 +80,18 @@ export class AuthController {
   @Get('check-access')
   checkAccess() {
     return 'Access Granted';
+  }
+
+  // FORGOT PASSWORD
+  @Public()
+  @Post('forgot-password')
+  forgotPassword(@Request() req) {
+    return this.authService.forgotPassword(req.body.email);
+  }
+
+  @Public()
+  @Post('reset-password')
+  resetPassword(@Request() req) {
+    return this.authService.resetPassword(req.body.token, req.body.password);
   }
 }

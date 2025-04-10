@@ -1,7 +1,6 @@
 "use server";
-import { loginSchema } from "@/form-shema/auth";
+import { resetPasswordSchema } from "@/form-shema/auth";
 import { BACKEND_URL } from "@/lib/constants";
-import { createSession } from "@/lib/session";
 export type FormState = {
   message: string;
   fields?: Record<string, string>;
@@ -14,7 +13,8 @@ export async function onSubmitAction(
 ): Promise<FormState> {
   // Get the form data
   const formData = Object.fromEntries(data);
-  const parsed = loginSchema.safeParse(formData);
+  console.log("formData", formData);
+  const parsed = resetPasswordSchema.safeParse(formData);
 
   if (!parsed.success) {
     const fields: Record<string, string> = {};
@@ -28,38 +28,38 @@ export async function onSubmitAction(
     };
   }
 
+  if (parsed.data.password !== parsed.data.confirmPassword) {
+    return {
+      message: "كلمتا المرور غير متطابقتين",
+      fields: {
+        password: parsed.data.password,
+        confirmPassword: parsed.data.confirmPassword,
+      },
+    };
+  }
+
+  console.log("parsed.data", parsed.data);
+  // return {
+  //   message: "ok",
+  // };
+
   try {
-    const response = await fetch(`${BACKEND_URL}/auth/login`, {
+    const response = await fetch(`${BACKEND_URL}/auth/reset-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(parsed.data),
+      body: JSON.stringify({
+        password: parsed.data.password,
+        token: formData.token,
+      }),
     });
-
+    const result = await response.json();
     if (response.ok) {
-      const result = await response.json();
-      //Create the Session For Authentcated user
-      await createSession({
-        user: {
-          id: result.id,
-          email: result.email,
-          full_name: result.full_name,
-          role: result.role,
-        },
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-      });
-
       return {
-        message: "success",
-        fields: {
-          email: parsed.data.email,
-          password: parsed.data.password,
-        },
+        message: result.message,
       };
     } else {
-      // Handle non-2xx responses
       const errorData = await response.json().catch(() => null);
       console.log({
         message:
@@ -71,9 +71,6 @@ export async function onSubmitAction(
           errorData?.message ||
           `Error: ${response.status} ${response.statusText}`,
       };
-      // return {
-      //   message: "يرجى التحقق من اتصالك بالإنترنت وحاول مرة أخرى",
-      // };
     }
   } catch (e) {
     console.error("Error when setup super admin", e);

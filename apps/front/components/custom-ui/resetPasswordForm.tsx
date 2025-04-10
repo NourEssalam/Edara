@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useActionState, useTransition, useRef, useEffect } from "react";
 import { z } from "zod";
-import { loginSchema } from "@/form-shema/auth";
+import { resetPasswordSchema } from "@/form-shema/auth";
 import {
   Form,
   FormControl,
@@ -17,12 +17,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { X } from "lucide-react";
-import { onSubmitAction } from "@/app/(auth)/actions/login";
+import { onSubmitAction } from "@/app/(auth)/actions/reset-password";
 import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
-export function LoginForm() {
+export function ResetPasswordForm() {
   const [state, formAction] = useActionState(onSubmitAction, {
     message: "",
   });
@@ -30,27 +30,27 @@ export function LoginForm() {
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
-
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      email: "",
       password: "",
+      confirmPassword: "",
     },
   });
+
   // Add this near your other hooks
   useEffect(() => {
     if (state?.message && state.message !== "") {
       if (state.message.includes("success")) {
         toast({
-          title: "لقد قمت بتسجيل الدخول بنجاح",
+          title: "تم تحديث كلمة المرور بنجاح",
           variant: "success",
         });
 
         // Redirect after delay
         const timer = setTimeout(() => {
-          redirect("/");
-        }, 1000);
+          redirect("/login");
+        }, 2000);
 
         return () => clearTimeout(timer); // Cleanup timeout if component unmounts
       } else {
@@ -62,25 +62,30 @@ export function LoginForm() {
     }
   }, [state?.message, toast]);
 
+  const searchParams = useSearchParams();
+
+  const token = searchParams.get("token");
+
+  if (!token) {
+    redirect("/");
+    // console.log("no token");
+  }
+
   return (
-    <div className="flex flex-col gap-2 dark:bg-gray-900 dark:text-white">
+    <div className="flex flex-col gap-2">
       {isPending && <p>Please wait a moment ...</p>}
       {state?.message !== "" &&
         !state.issues &&
         (state.message.includes("success") ? (
-          <p className="text-green-500 text-xl">لقد قمت بتسجيل الدخول بنجاح</p>
-        ) : state.message.includes("internal") ? (
-          <p className="text-red-500">
-            يرجى التحقق من اتصالك بالإنترنت وحاول مرة أخرى
-          </p>
+          <p className="text-green-500 text-xl">تم تحديث كلمة المرور بنجاح</p>
         ) : (
           <p className="text-red-500">{state.message}</p>
         ))}
       {state?.issues && (
         <div className="text-red-500">
           <ul>
-            {state.issues.map((issue, i) => (
-              <li key={i} className="flex gap-1">
+            {state.issues.map((issue) => (
+              <li key={issue} className="flex gap-1">
                 <X fill="red" />
                 {issue}
               </li>
@@ -94,28 +99,14 @@ export function LoginForm() {
           action={formAction}
           onSubmit={form.handleSubmit(() => {
             startTransition(() => {
-              formAction(new FormData(formRef.current!));
+              const formData = new FormData(formRef.current!);
+              // Add token to formData
+              formData.append("token", token ?? "");
+              formAction(formData);
             });
-            if (state.message.includes("success")) {
-              // form.reset();
-            }
           })}
-          className="space-y-4 border p-6 rounded-lg flex flex-col gap-1 bg-amber-200 dark:bg-gray-800 dark:border-gray-700"
-          dir="rtl"
+          className="rounded-lg border-amber-500 flex flex-col gap-4 bg-amber-200 p-6"
         >
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>البريد الإلكتروني</FormLabel>
-                <FormControl>
-                  <Input placeholder="أدخل بريدك الإلكتروني" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="password"
@@ -129,14 +120,21 @@ export function LoginForm() {
               </FormItem>
             )}
           />
-          <Link
-            className="text-right text-sm underline"
-            href={"forgot-password"}
-          >
-            هل نسيت كلمة المرور؟
-          </Link>
-          <Button className="w-full" disabled={isPending} type="submit">
-            تسجيل الدخول
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>تأكيد كلمة المرور</FormLabel>
+                <FormControl>
+                  <Input placeholder="أعد إدخال كلمة المرور" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button disabled={isPending} type="submit">
+            تحديث كلمة المرور
           </Button>
         </form>
       </Form>

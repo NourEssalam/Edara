@@ -9,6 +9,8 @@ import {
 } from 'drizzle-orm/pg-core';
 
 import { UserRole, UserStatus } from '@repo/shared-types';
+import { relations } from 'drizzle-orm';
+import { passwordResetTokens } from './reset-password.schema';
 
 // Define the user roles as an enum
 export const UserRoleEnum = pgEnum(
@@ -42,3 +44,7 @@ export const users = pgTable(
   },
   (table) => [uniqueIndex('email_idx').on(table.email)],
 );
+
+export const usersRelations = relations(users, ({ one }) => ({
+  passwordResetTokens: one(passwordResetTokens),
+}));

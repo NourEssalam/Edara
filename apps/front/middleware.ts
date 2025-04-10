@@ -7,7 +7,12 @@ import { cookies } from "next/headers";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const publicRoutes = ["/login", "/setup"];
+  const publicRoutes = [
+    "/login",
+    "/setup",
+    "/reset-password",
+    "/forgot-password",
+  ];
   const apiRoutes = ["/api/"];
 
   const isPublicRoute = publicRoutes.some((route) =>
@@ -50,31 +55,6 @@ export async function middleware(req: NextRequest) {
 
   const oldPayload = await getSession(); // we use this because the sessionValue always true
 
-  if (pathname !== "/setup" && sessionValue) {
-    try {
-      const countUsers = await fetch(`${BACKEND_URL}/user/count`, {
-        method: "GET",
-      });
-
-      if (countUsers.ok) {
-        const count = await countUsers.json();
-        if (count === 0) {
-          const cookieStore = await cookies();
-
-          cookieStore.delete("session");
-          if (!sessionValue && !oldPayload) {
-            return NextResponse.redirect(new URL("/setup", req.url));
-          }
-        } else {
-          return NextResponse.next();
-        }
-      }
-    } catch (error) {
-      console.log(error);
-      return NextResponse.next();
-    }
-  }
-
   // Redirect to dashboard if authenticated but on a public route
   if (
     oldPayload &&
@@ -89,6 +69,26 @@ export async function middleware(req: NextRequest) {
   }
 
   if (oldPayload && sessionValue && !isPublicRoute) {
+    try {
+      const countUsers = await fetch(`${BACKEND_URL}/user/count`, {
+        method: "GET",
+      });
+
+      if (countUsers.ok) {
+        const count = await countUsers.json();
+        if (count === 0) {
+          const cookieStore = await cookies();
+
+          cookieStore.delete("session");
+          if (!sessionValue && !oldPayload) {
+            return NextResponse.redirect(new URL("/setup", req.url));
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
     try {
       // Verify the session JWT
       const { payload } = await jwtVerify(sessionValue, encodedKey, {
@@ -114,6 +114,7 @@ export async function middleware(req: NextRequest) {
       // }
 
       // For page routes, check if we need to refresh token when accessing backend resources
+      // So we don't have to refresh token on every request
       if (!pathname.includes("/auth/refresh")) {
         // Make the original request to check if token is valid
         const fetchRequest = new Request(`${BACKEND_URL}/auth/check-access`, {

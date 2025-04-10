@@ -70,4 +70,11 @@ export class UserService {
       .set({ hashed_refresh_token: hashedRefreshToken })
       .where(eq(users.id, userId));
   }
+
+  async updatePassword(userId: number, hashPassword: string) {
+    return await this.db
+      .update(users)
+      .set({ password: hashPassword })
+      .where(eq(users.id, userId));
+  }
 }

@@ -7,6 +7,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+// import { BACKEND_URL } from "@/lib/constants";
+// import GetOut from "@/components/custom-ui/getOut";
 // import data from "./data.json";
 export const dynamic = "force-dynamic";
 export default async function DashboardLayout({
@@ -14,39 +16,43 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const session = await getSession();
-  // if (!session || !session.user) {
-  //   redirect("/login");
-  // }
+  // const count = await fetch(`${BACKEND_URL}/user/count`);
+  // const countResult = await count.json();
+  const session = await getSession();
+  if (!session || !session.user) {
+    redirect("/login");
+  }
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      {/* <Header /> */}
-      <SidebarProvider>
-        <AppSidebar variant="inset" />
-        <SidebarInset>
-          <SiteHeader />
-          <div className="flex flex-1 flex-col">
-            <div className="@container/main flex flex-1 flex-col gap-2">
-              <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                {/* 
+    <>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {/* <Header /> */}
+        <SidebarProvider>
+          <AppSidebar variant="inset" />
+          <SidebarInset>
+            <SiteHeader />
+            <div className="flex flex-1 flex-col">
+              <div className="@container/main flex flex-1 flex-col gap-2">
+                <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+                  {/* 
                 <SectionCards />
                     <div className="px-4 lg:px-6">
                       <ChartAreaInteractive />
                     </div>
                     <DataTable data={data} />
-                     */}
-                {children}
+                    */}
+                  {children}
+                </div>
               </div>
             </div>
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
-    </ThemeProvider>
+          </SidebarInset>
+        </SidebarProvider>
+      </ThemeProvider>
+    </>
   );
 }

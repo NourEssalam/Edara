@@ -13,6 +13,7 @@ import { RefreshStrategy } from './strategies/refresh-token.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from './guards/roles/roles.guard';
+import { EmailService } from 'src/email/email.service';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RolesGuard } from './guards/roles/roles.guard';
     UserService,
     LocalStrategy,
     JwtStrategy,
+    EmailService,
     RefreshStrategy,
     {
       provide: APP_GUARD,

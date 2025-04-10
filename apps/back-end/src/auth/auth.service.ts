@@ -16,6 +16,12 @@ import { UserRole } from '@repo/shared-types';
 import refreshConfig from './config/refresh.config';
 import type { ConfigType } from '@nestjs/config';
 
+import crypto from 'crypto';
+import { createHash } from 'crypto';
+import { passwordResetTokens } from 'src/drizzle/schema/reset-password.schema';
+import { eq } from 'drizzle-orm';
+import { EmailService } from 'src/email/email.service';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -24,6 +30,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(refreshConfig.KEY)
     private refreshTokenConfig: ConfigType<typeof refreshConfig>,
+    private emailService: EmailService,
   ) {}
 
   TODO;
@@ -120,10 +127,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    console.log('###################################');
-    console.log('refresh token: ', refreshToken);
-    console.log('hashed refresh token: ', user.hashed_refresh_token);
-    console.log('###################################');
+
     // Verify the refresh token
     try {
       const refreshTokenMatched = await verify(
@@ -153,10 +157,6 @@ export class AuthService {
     full_name: string,
     role: UserRole,
   ) {
-    console.log('########################################');
-    console.log('refresh token from server');
-    console.log('########################################');
-
     const { accessToken, refreshToken } = await this.generateToken(
       userId,
       role,
@@ -181,5 +181,103 @@ export class AuthService {
 
     console.log('logout');
     return await this.userService.updateHashedRefreshToken(userId, null);
+  }
+
+  ////////////////////
+  /// FORGOT PASSWORD
+  async forgotPassword(email: string) {
+    const user = await this.userService.findOneByEmail(email);
+    if (!user[0]) throw new UnauthorizedException('not found');
+    const { token, hashedToken } = await this.generateResetToken();
+
+    // Calculate expiration (e.g., 1 hour from now)
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
+
+    // Delete any existing reset tokens for this user
+    await this.db
+      .delete(passwordResetTokens)
+      .where(eq(passwordResetTokens.userId, user[0].id));
+
+    // Insert the new reset token into the database
+    // Save new token in the reset table
+    await this.db.insert(passwordResetTokens).values({
+      userId: user[0].id,
+      hashedToken: hashedToken,
+      expiresAt: expiresAt,
+    });
+
+    // Send the email with reset link
+    await this.emailService.sendPasswordResetEmail(user[0].email, token);
+
+    // Return success message (don't return the token in production)
+    return {
+      message: 'Password reset instructions sent to your email',
+      email: user[0].email,
+    };
+  }
+
+  // Generate a secure random token
+  async generateResetToken() {
+    // Create a random token (32 bytes = 256 bits of entropy, encoded as hex)
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Hash the token using SHA-256 for storage
+    const hashedToken = createHash('sha256').update(token).digest('hex');
+
+    return { token, hashedToken };
+  }
+
+  async verifyResetToken(providedToken: string, storedHashedToken: string) {
+    const hashedProvidedToken = createHash('sha256')
+      .update(providedToken)
+      .digest('hex');
+    return hashedProvidedToken === storedHashedToken;
+  }
+
+  /// RESET PASSWORD
+
+  async resetPassword(token: string, newPassword: string) {
+    // Hash the provided token
+    const hashedToken = createHash('sha256').update(token).digest('hex');
+
+    // Look up the token in the database
+    const resetTokenRecord = await this.db
+      .select()
+      .from(passwordResetTokens)
+      .where(eq(passwordResetTokens.hashedToken, hashedToken))
+      .limit(1);
+
+    if (!resetTokenRecord[0]) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
+    // Check if token is expired
+    if (new Date() > resetTokenRecord[0].expiresAt) {
+      // Delete expired token
+      await this.db
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.id, resetTokenRecord[0].id));
+      throw new UnauthorizedException('Token expired');
+    }
+
+    // Get user and update password
+    const user = await this.userService.findOneById(resetTokenRecord[0].userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Hash the new password (using Argon2 or whatever you use for passwords)
+    const hashedPassword = await hash(newPassword);
+
+    // Update the user's password
+    await this.userService.updatePassword(user.id, hashedPassword);
+
+    // Delete the used token
+    await this.db
+      .delete(passwordResetTokens)
+      .where(eq(passwordResetTokens.id, resetTokenRecord[0].id));
+
+    return { message: 'Password updated successfully' };
   }
 }
