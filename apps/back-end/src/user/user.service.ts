@@ -20,11 +20,31 @@ export class UserService {
   }
 
   // Find if the email exists
-  async findOneByEmail(email: string) {
+  async findEmail(email: string) {
     return await this.db
       .selectDistinct({ email: users.email })
       .from(users)
       .where(eq(users.email, email));
+  }
+
+  async findOneByEmail(email: string) {
+    return await this.db
+      .selectDistinct()
+      .from(users)
+      .where(eq(users.email, email));
+  }
+
+  async findOneById(userId: number) {
+    const result = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
+
+    // Add some logging to debug
+    // console.log('Searching for user with ID:', userId);
+    // console.log('Result:', result);
+
+    return result.length > 0 ? result[0] : null; // Return first item or null
   }
 
   // COUNT ALL USERS
@@ -40,19 +60,21 @@ export class UserService {
       .values({ ...user, password: hashPassword, role: 'SUPER_ADMIN' });
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async updateHashedRefreshToken(
+    userId: number,
+    hashedRefreshToken: string | null,
+  ) {
+    console.log('user.service : update refresh token', hashedRefreshToken);
+    return await this.db
+      .update(users)
+      .set({ hashed_refresh_token: hashedRefreshToken })
+      .where(eq(users.id, userId));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async updatePassword(userId: number, hashPassword: string) {
+    return await this.db
+      .update(users)
+      .set({ password: hashPassword })
+      .where(eq(users.id, userId));
   }
 }

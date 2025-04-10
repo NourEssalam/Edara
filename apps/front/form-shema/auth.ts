@@ -1,60 +1,72 @@
-// We will move this later to a shared package for reusability in both nest js and next js
+// سيتم نقل هذا لاحقًا إلى حزمة مشتركة لإعادة الاستخدام في NestJS و NextJS
 import { z } from "zod";
 
 export const signUpSchema = z.object({
-  username: z
+  full_name: z
     .string()
-    .min(5, "Username must be at least 5 characters long")
+    .min(5, "يجب أن يكون اسم المستخدم 5 أحرف على الأقل")
     .regex(
-      /^[a-zA-Z0-9]+$/,
-      "Username must only contain alphanumeric characters"
+      /^[a-zA-Z0-9 ]+$/,
+      "يجب أن يحتوي اسم المستخدم على أحرف وأرقام ومسافات فقط"
     ),
 
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("عنوان البريد الإلكتروني غير صالح"),
 
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters long")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
+    .min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل")
     .regex(
       /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character"
+      "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
     ),
+
   confirmPassword: z
     .string()
-    .min(8, "Password must be at least 8 characters long")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
+    .min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل")
     .regex(
       /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character"
+      "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
     ),
 });
 
 export const loginSchema = z.object({
-  identifier: z.union([
-    // Username validation
-    z
-      .string()
-      .min(5, "Username must be at least 5 characters long")
-      .regex(
-        /^[a-zA-Z0-9]+$/,
-        "Username must only contain alphanumeric characters"
-      )
-      .describe("username"),
-
-    // Email validation
-    z.string().email("Invalid email format").describe("email"),
-  ]),
-
+  email: z.string().email("عنوان البريد الإلكتروني غير صالح"),
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters long")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
+    .min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل")
     .regex(
       /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character"
+      "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
+    ),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("عنوان البريد الإلكتروني غير صالح"),
+});
+
+export const resetPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل")
+    .regex(
+      /[^a-zA-Z0-9]/,
+      "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
+    ),
+  confirmPassword: z
+    .string()
+    .min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل")
+    .regex(
+      /[^a-zA-Z0-9]/,
+      "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
     ),
 });
