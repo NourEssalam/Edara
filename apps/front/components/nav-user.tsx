@@ -2,8 +2,8 @@
 
 import {
   BellIcon,
-  CreditCardIcon,
-  LogOutIcon,
+  // CreditCardIcon,
+  // LogOutIcon,
   MoreVerticalIcon,
   UserCircleIcon,
 } from "lucide-react";
