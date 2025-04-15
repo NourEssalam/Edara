@@ -1,5 +1,5 @@
 "use server";
-import { forgotPasswordSchema } from "@/form-shema/auth";
+import { forgotPasswordSchema } from "@/form-schemas/auth";
 import { BACKEND_URL } from "@/lib/constants";
 export type FormState = {
   message: string;
@@ -39,6 +39,7 @@ export async function onSubmitAction(
 
     if (response.ok) {
       const result = await response.json();
+      console.log(result);
       return {
         message: "ok",
         email: result.email,

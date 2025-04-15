@@ -1,9 +1,11 @@
+import { UserRole } from "@repo/shared-types";
+
 export type Session = {
   user: {
     id: string;
     email: string;
     full_name: string;
-    role: string;
+    role: UserRole;
   };
   accessToken: string;
   refreshToken: string;

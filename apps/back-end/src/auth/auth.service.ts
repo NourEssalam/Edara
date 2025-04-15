@@ -41,7 +41,7 @@ export class AuthService {
     if (user[0]) {
       throw new ConflictException('User already exists');
     }
-    return this.userService.create(createUserDto);
+    return this.userService.createNewUser(createUserDto);
   }
 
   async setupRegistration(firstSuperAdminDto: FirstSuperAdminDto) {
@@ -96,6 +96,8 @@ export class AuthService {
     );
     const hashRefreshToken = await hash(refreshToken);
     await this.userService.updateHashedRefreshToken(userId, hashRefreshToken);
+    // update last login time
+    await this.userService.updateLastLoginTime(userId);
 
     return {
       id: userId,

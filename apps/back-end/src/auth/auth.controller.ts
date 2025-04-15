@@ -26,13 +26,6 @@ export class AuthController {
     return this.authService.setupRegistration(firstSuperAdminDto);
   }
 
-  // this endpoint is for registering a new user by a super admin
-  @Public()
-  @Post('register')
-  registerNewUser(@Body() createUserDto: CreateUserDto) {
-    return this.authService.registerNewUser(createUserDto);
-  }
-
   // Login
   @Public()
   @UseGuards(LocalAuthGuard)

@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 
 import {
   BellIcon,
@@ -26,16 +26,9 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { LogoutButton } from "./custom-ui/logout";
+import { User } from "@/types/auth-types";
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
 
   return (
@@ -48,12 +41,19 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                {/* <AvatarImage src={user?.avatar} alt={user.full_name} /> */}
+                <AvatarFallback className="rounded-lg dark:bg-gray-600 uppercase">
+                  {(user.full_name ?? "").length > 2
+                    ? (user.full_name ?? "").slice(0, 2)
+                    : (user.email ?? "").slice(0, 2)}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs text-muted-foreground">
+                <span className="truncate font-medium">{user.full_name}</span>
+                <span
+                  dir="ltr"
+                  className="truncate text-xs text-muted-foreground "
+                >
                   {user.email}
                 </span>
               </div>
@@ -69,11 +69,11 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate font-medium">{user.full_name}</span>
                   <span className="truncate text-xs text-muted-foreground">
                     {user.email}
                   </span>
@@ -84,12 +84,12 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <UserCircleIcon />
-                <Link href="/profile">Profile</Link>
+                <Link href="/profile">الملف الشخصي</Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem>
                 <BellIcon />
-                Notifications
+                الإشعارات
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

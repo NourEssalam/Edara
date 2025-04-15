@@ -1,5 +1,5 @@
 "use server";
-import { resetPasswordSchema } from "@/form-shema/auth";
+import { resetPasswordSchema } from "@/form-schemas/auth";
 import { BACKEND_URL } from "@/lib/constants";
 export type FormState = {
   message: string;

@@ -16,7 +16,7 @@ export const authFetch = async (
     Authorization: `Bearer ${session?.accessToken}`,
   };
   options.credentials = "include";
-
+  // console.log("fetching", url, options);
   const response = await fetch(url, options);
 
   // // If unauthorized, let the middleware handle token refresh

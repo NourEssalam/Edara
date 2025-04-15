@@ -1,20 +1,23 @@
 "use server";
-import { loginSchema } from "@/form-schemas/auth";
+
+import { createUserSchema } from "@/form-schemas/users-management";
+import { authFetch } from "@/lib/authFetch";
 import { BACKEND_URL } from "@/lib/constants";
-import { createSession } from "@/lib/session";
+
 export type FormState = {
   message: string;
   fields?: Record<string, string>;
   issues?: string[];
 };
 
-export async function onSubmitAction(
+export async function createUser(
   prevState: FormState,
   data: FormData
 ): Promise<FormState> {
   // Get the form data
   const formData = Object.fromEntries(data);
-  const parsed = loginSchema.safeParse(formData);
+
+  const parsed = createUserSchema.safeParse(formData);
 
   if (!parsed.success) {
     const fields: Record<string, string> = {};
@@ -28,35 +31,31 @@ export async function onSubmitAction(
     };
   }
 
+  if (parsed.data.password !== parsed.data.confirmPassword) {
+    return {
+      message: "كلمتا المرور غير متطابقتين",
+      fields: {
+        password: parsed.data.password,
+        confirmPassword: parsed.data.confirmPassword,
+      },
+    };
+  }
+
   try {
-    const response = await fetch(`${BACKEND_URL}/auth/login`, {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { confirmPassword, ...dataToSend } = parsed.data;
+    console.log("Data to send:", dataToSend);
+    const response = await authFetch(`${BACKEND_URL}/user/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(parsed.data),
+      body: JSON.stringify(dataToSend),
     });
 
     if (response.ok) {
-      const result = await response.json();
-      //Create the Session For Authentcated user
-      await createSession({
-        user: {
-          id: result.id,
-          email: result.email,
-          full_name: result.full_name,
-          role: result.role,
-        },
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-      });
-
       return {
-        message: "success",
-        fields: {
-          email: parsed.data.email,
-          password: parsed.data.password,
-        },
+        message: "Form submitted successfully",
       };
     } else {
       // Handle non-2xx responses
@@ -71,12 +70,9 @@ export async function onSubmitAction(
           errorData?.message ||
           `Error: ${response.status} ${response.statusText}`,
       };
-      // return {
-      //   message: "يرجى التحقق من اتصالك بالإنترنت وحاول مرة أخرى",
-      // };
     }
   } catch (e) {
-    console.error("Error when setup super admin", e);
+    console.error("Error when submitting form", e);
     console.log(e instanceof Error ? e.message : "Something went wrong");
     return {
       message: "حدث خطأ ما",

@@ -16,8 +16,6 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const count = await fetch(`${BACKEND_URL}/user/count`);
-  // const countResult = await count.json();
   const session = await getSession();
   if (!session || !session.user) {
     redirect("/login");
@@ -39,17 +37,17 @@ export default async function DashboardLayout({
             <div className="flex flex-1 flex-col">
               <div className="@container/main flex flex-1 flex-col gap-2">
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-                  {/* 
-                <SectionCards />
+                  {/* <SectionCards />
                     <div className="px-4 lg:px-6">
                       <ChartAreaInteractive />
                     </div>
-                    <DataTable data={data} />
-                    */}
+                    <DataTable data={data} /> */}
+
                   {children}
                 </div>
               </div>
             </div>
+            {/* <div>{children}</div> */}
           </SidebarInset>
         </SidebarProvider>
       </ThemeProvider>
