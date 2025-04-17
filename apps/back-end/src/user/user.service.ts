@@ -18,6 +18,7 @@ import { users } from 'src/drizzle/schema/users.schema';
 import { hash } from 'argon2';
 import { FirstSuperAdminDto } from './dto/first-super-admin.dto';
 import { GetUsersQueryDto } from './dto/query-users-list.dto';
+import { UpdateUserBySuperAdminDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -89,6 +90,29 @@ export class UserService {
       .update(users)
       .set({ password: hashPassword })
       .where(eq(users.id, userId));
+  }
+
+  async getUserById(userId: number) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { hashed_refresh_token, password, ...rest } = getTableColumns(users);
+    return await this.db
+      .select({ ...rest })
+      .from(users)
+      .where(eq(users.id, userId));
+  }
+
+  async updateUserBySuperAdmin(
+    userId: number,
+    updateUserBySuperAdminDto: UpdateUserBySuperAdminDto,
+  ) {
+    return await this.db
+      .update(users)
+      .set({ ...updateUserBySuperAdminDto, updated_at: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async deleteUserBySuperAdmin(userId: number) {
+    return await this.db.delete(users).where(eq(users.id, userId));
   }
 
   ///////////////////////

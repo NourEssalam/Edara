@@ -1,4 +1,5 @@
 import { UserRole, UserStatus } from "@repo/shared-types";
+import { Delete } from "lucide-react";
 import { z } from "zod";
 
 export const createUserSchema = z.object({
@@ -37,4 +38,43 @@ export const createUserSchema = z.object({
     })
     .optional(),
   profile_picture_url: z.string().optional(),
+});
+
+export const updateUserSchemaByAdmin = z.object({
+  userId: z.string(),
+  full_name: z
+    .string()
+    .min(5, "يجب أن يكون اسم المستخدم 5 أحرف على الأقل")
+    .regex(
+      /^[a-zA-Z0-9 \u0600-\u06FF\u0750-\u077F]+$/,
+      "يجب أن يحتوي اسم المستخدم على حروف وأرقام فقط"
+    ),
+  email: z.string().email("عنوان البريد الإلكتروني غير صالح"),
+  role: z.nativeEnum(UserRole, {
+    errorMap: () => ({ message: "دور المستخدم غير صالح" }),
+  }),
+  status: z
+    .nativeEnum(UserStatus, {
+      errorMap: () => ({ message: "حالة المستخدم غير صالحة" }),
+    })
+    .optional(),
+  profile_picture_url: z.string().optional(),
+});
+
+export const DeleteUserFormSchema = z.object({
+  userId: z.string(),
+  full_name: z
+    .string()
+    .min(5, "يجب أن يكون اسم المستخدم 5 أحرف على الأقل")
+    .regex(
+      /^[a-zA-Z0-9 \u0600-\u06FF\u0750-\u077F]+$/,
+      "يجب أن يحتوي اسم المستخدم على حروف وأرقام فقط"
+    ),
+  confirm_full_name: z
+    .string()
+    .min(5, "يجب أن يكون اسم المستخدم 5 أحرف على الأقل")
+    .regex(
+      /^[a-zA-Z0-9 \u0600-\u06FF\u0750-\u077F]+$/,
+      "يجب أن يحتوي اسم المستخدم على حروف وأرقام فقط"
+    ),
 });

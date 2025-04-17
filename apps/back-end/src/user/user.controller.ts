@@ -2,8 +2,10 @@ import {
   Body,
   ConflictException,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -13,6 +15,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from '@repo/shared-types';
 import { GetUsersQueryDto } from './dto/query-users-list.dto';
+import { UpdateUserBySuperAdminDto } from './dto/update-user.dto';
 // import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('user')
@@ -52,10 +55,38 @@ export class UserController {
   }
 
   // Get allusers and let tanstack do the pagination and filtration
+  @Roles(UserRole.SUPER_ADMIN)
   @Get('users-client-side')
   async getAllUsersClient() {
     const users = await this.userService.getAllUsersClient();
     return users;
+  }
+
+  @Get('get-user/:id')
+  async getUserById(@Param('id') id: string) {
+    const userId = parseInt(id, 10); // Convert to number
+    return await this.userService.getUserById(userId);
+  }
+
+  @Roles(UserRole.SUPER_ADMIN)
+  @Patch('update-user-by-super-admin/:id')
+  async updateUserBySuperAdmin(
+    @Param('id') id: string,
+    @Body() updateUserBySuperAdminDto: UpdateUserBySuperAdminDto,
+  ) {
+    const userId = parseInt(id, 10); // Convert to number
+    console.log('updating user by super admin');
+    return await this.userService.updateUserBySuperAdmin(
+      userId,
+      updateUserBySuperAdminDto,
+    );
+  }
+
+  @Roles(UserRole.SUPER_ADMIN)
+  @Delete('delete-user-by-super-admin/:id')
+  async deleteUserBySuperAdmin(@Param('id') id: string) {
+    const userId = parseInt(id, 10); // Convert to number
+    return await this.userService.deleteUserBySuperAdmin(userId);
   }
 
   // Then dynamic endpoints

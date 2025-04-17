@@ -15,6 +15,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
+import { UpdateUserDialog } from "@/components/custom-ui/update-user-dialog";
+import { useState } from "react";
+import { DeleteUserDialog } from "@/components/custom-ui/delete-user-dialog";
 // This type is used to define the shape of our data.
 export type UserData = {
   id: string;
@@ -28,67 +32,45 @@ export type UserData = {
   updated_at: Date; // Added from schema
 };
 
+export function Action({ user }: { user: UserData }) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  return (
+    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="direction-rtl flex flex-col gap-4 p-4"
+        align="end"
+      >
+        <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
+        <DropdownMenuItem
+          onClick={() => navigator.clipboard.writeText(user.id)} // we will change it later
+        >
+          نسخ رقم الموظف
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <UpdateUserDialog user={user} setDropdownOpen={setDropdownOpen} />
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <DeleteUserDialog user={user} setDropdownOpen={setDropdownOpen} />
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export const columns: ColumnDef<UserData>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        className="mr-2"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        className="mr-2"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     id: "إجراءات",
     cell: ({ row }) => {
       const user = row.original;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="direction-rtl" align="end">
-            <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(user.id)} // we will change it later
-            >
-              نسخ رقم الموظف
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              {" "}
-              <Button
-                className="bg-amber-500 hover:bg-amber-600"
-                variant="outline"
-              >
-                تعديل بيانات المستخدم
-              </Button>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Button variant="destructive">حذف المستخدم</Button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <Action user={user} />;
     },
   },
   {
@@ -124,6 +106,7 @@ export const columns: ColumnDef<UserData>[] = [
     accessorKey: "role",
     enableGlobalFilter: false,
     header: "صلاحيات المستخدم",
+    filterFn: "equals",
     cell: ({ row }) => {
       const role = row.getValue("role") as UserRole;
       return translateRole(role);
@@ -133,6 +116,7 @@ export const columns: ColumnDef<UserData>[] = [
     accessorKey: "status",
     enableGlobalFilter: false,
     header: "الحالة",
+    filterFn: "equals",
     cell: ({ row }) => {
       const status = row.getValue("status") as UserStatus;
       return translateStatus(status);
@@ -175,7 +159,10 @@ export const columns: ColumnDef<UserData>[] = [
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => {
+            column.toggleSorting(column.getIsSorted() === "asc");
+            console.log(column.getIsSorted());
+          }}
         >
           اخر تعديل
           <ArrowUpDown className="ml-2 h-4 w-4" />

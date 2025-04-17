@@ -5,6 +5,7 @@ import {
   UseGuards,
   Request,
   Get,
+  Patch,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -83,7 +84,7 @@ export class AuthController {
   }
 
   @Public()
-  @Post('reset-password')
+  @Patch('reset-password')
   resetPassword(@Request() req) {
     return this.authService.resetPassword(req.body.token, req.body.password);
   }

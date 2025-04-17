@@ -10,16 +10,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { CreateUserForm } from "./create-user-form";
 import { useState } from "react";
-
-export function CreateUserDialog() {
+import { UpdateUserForm } from "./update-user-form";
+import { UserData } from "@/app/(dashboard)/users-management/users-list/columns";
+interface ChildProps {
+  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+export function UpdateUserDialog({
+  user,
+  setDropdownOpen,
+}: { user: UserData } & ChildProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">إضافة مستخدم</Button>
+        <Button variant="default">تحديث بيانات المستخدم</Button>
       </DialogTrigger>
       <DialogContent
         dir="rtl"
@@ -32,7 +38,11 @@ export function CreateUserDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <CreateUserForm setOpen={setOpen} />
+        <UpdateUserForm
+          user={user}
+          setOpen={setOpen}
+          setDropdownOpen={setDropdownOpen}
+        />
         <DialogFooter>
           {/* <Button type="submit">Save changes</Button> */}
         </DialogFooter>
