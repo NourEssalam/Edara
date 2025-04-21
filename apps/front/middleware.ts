@@ -34,9 +34,10 @@ export async function middleware(req: NextRequest) {
   }
 
   // If this is a logout request, always allow it
-  if (isLogoutRoute) {
-    return NextResponse.next();
-  }
+  // if (isLogoutRoute) {
+  //   console.log("Middleware: Logout route, allowing redirect");
+  //   return NextResponse.next();
+  // }
 
   if (isPublicRoute) {
     const response = NextResponse.next();
@@ -108,10 +109,7 @@ export async function middleware(req: NextRequest) {
         },
       });
 
-      // For API routes, let them handle their own auth
-      // if (isApiRoute) {
-      //   return response;
-      // }
+      response.headers.set("x-url", pathname);
 
       // For page routes, check if we need to refresh token when accessing backend resources
       // So we don't have to refresh token on every request
@@ -171,6 +169,7 @@ export async function middleware(req: NextRequest) {
       }
 
       return response;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       console.log("Middleware: Invalid session, redirecting to login...");
       return NextResponse.redirect(new URL("/login", req.url));

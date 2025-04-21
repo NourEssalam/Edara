@@ -1,5 +1,4 @@
 import { UserRole, UserStatus } from "@repo/shared-types";
-import { Delete } from "lucide-react";
 import { z } from "zod";
 
 export const createUserSchema = z.object({
@@ -76,5 +75,49 @@ export const DeleteUserFormSchema = z.object({
     .regex(
       /^[a-zA-Z0-9 \u0600-\u06FF\u0750-\u077F]+$/,
       "يجب أن يحتوي اسم المستخدم على حروف وأرقام فقط"
+    ),
+});
+
+export const UserInfoEssentials = z.object({
+  userId: z.string(),
+  full_name: z
+    .string()
+    .min(5, "يجب أن يكون اسم المستخدم 5 أحرف على الأقل")
+    .regex(
+      /^[a-zA-Z0-9 \u0600-\u06FF\u0750-\u077F]+$/,
+      "يجب أن يحتوي اسم المستخدم على حروف وأرقام فقط"
+    ),
+  email: z.string().email("عنوان البريد الإلكتروني غير صالح"),
+  profile_picture_url: z.string().optional(),
+});
+
+export const ChangePasswordSchema = z.object({
+  userId: z.string(),
+  oldPassword: z
+    .string()
+    .min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل")
+    .regex(
+      /[^a-zA-Z0-9]/,
+      "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
+    ),
+  newPassword: z
+    .string()
+    .min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل")
+    .regex(
+      /[^a-zA-Z0-9]/,
+      "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
+    ),
+  confirmNewPassword: z
+    .string()
+    .min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل")
+    .regex(/[A-Z]/, "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل")
+    .regex(/[0-9]/, "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل")
+    .regex(
+      /[^a-zA-Z0-9]/,
+      "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
     ),
 });

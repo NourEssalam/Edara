@@ -27,6 +27,7 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh-jwt') {
     const userId = payload.sub;
 
     const refreshToken = req.body.refresh;
+    // TODO : WE NEED TO PASS THE BROWSER SESSION ID
     return this.authService.validateRefreshToken(userId, refreshToken);
   }
 }

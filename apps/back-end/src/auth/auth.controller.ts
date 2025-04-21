@@ -65,7 +65,7 @@ export class AuthController {
     );
   }
 
-  @Post('logout')
+  @Patch('logout')
   logout(@Request() req) {
     console.log('id from logout', req.user.id);
     return this.authService.logout(req.user.id);

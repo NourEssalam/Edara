@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 // import { BACKEND_URL } from "@/lib/constants";
 // import GetOut from "@/components/custom-ui/getOut";
 // import data from "./data.json";
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 export default async function DashboardLayout({
   children,
 }: Readonly<{

@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { DRIZZLE } from 'src/drizzle/drizzle.module';
 import type { Database } from 'src/drizzle/types/drizzle';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -6,7 +11,7 @@ import {
   eq,
   like,
   or,
-  sql,
+  // sql,
   asc,
   desc,
   and,
@@ -15,14 +20,20 @@ import {
   count,
 } from 'drizzle-orm';
 import { users } from 'src/drizzle/schema/users.schema';
-import { hash } from 'argon2';
+import { hash, verify } from 'argon2';
 import { FirstSuperAdminDto } from './dto/first-super-admin.dto';
 import { GetUsersQueryDto } from './dto/query-users-list.dto';
 import { UpdateUserBySuperAdminDto } from './dto/update-user.dto';
+import { EmailService } from 'src/email/email.service';
+import { EditUserProfileDto } from './dto/edit-user-profile-info.dto';
+import { ChangePasswordDto } from './dto/change-password-by-user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Database,
+    private emailService: EmailService,
+  ) {}
 
   // Find if the email exists
   async findEmail(email: string) {
@@ -60,9 +71,12 @@ export class UserService {
   async setupRegistration(firstSuperAdminDto: FirstSuperAdminDto) {
     const { password, ...user } = firstSuperAdminDto;
     const hashPassword = await hash(password);
-    return await this.db
-      .insert(users)
-      .values({ ...user, password: hashPassword, role: 'SUPER_ADMIN' });
+    return await this.db.insert(users).values({
+      ...user,
+      password: hashPassword,
+      role: 'SUPER_ADMIN',
+      status: 'ACTIVE',
+    });
   }
 
   async createNewUser(createUserDto: CreateUserDto) {
@@ -71,7 +85,7 @@ export class UserService {
     const hashPassword = await hash(password);
     return await this.db
       .insert(users)
-      .values({ ...user, password: hashPassword });
+      .values({ ...user, password: hashPassword, status: 'INACTIVE' });
   }
 
   async updateHashedRefreshToken(
@@ -204,6 +218,83 @@ export class UserService {
     return await this.db
       .update(users)
       .set({ last_login: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async sendCredentialsEmail(userId: number) {
+    const { full_name, email, password } = await this.db
+      .select({
+        full_name: users.full_name,
+        email: users.email,
+        password: users.password,
+      })
+      .from(users)
+      .where(eq(users.id, userId))[0];
+
+    // const unhashed;
+
+    await this.emailService.sendCredentialsToUser(full_name, email, password);
+
+    return {
+      message: 'Credentials sent to your email',
+    };
+  }
+
+  /// USER PROFILE INFO
+  async getUserProfileInfo(userId: number) {
+    const user = await this.db
+      .select({
+        id: users.id,
+        full_name: users.full_name,
+        email: users.email,
+      })
+      .from(users)
+      .where(eq(users.id, userId));
+
+    // console.log(user);
+
+    return user[0];
+  }
+
+  async editUserProfileInfo(
+    userId: number,
+    editUserProfileDto: EditUserProfileDto,
+  ) {
+    return await this.db
+      .update(users)
+      .set({ ...editUserProfileDto, updated_at: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async changePasswordBySelf(
+    userId: number,
+    changePasswordDto: ChangePasswordDto,
+  ) {
+    const user = await this.db
+      .select({
+        password: users.password,
+      })
+      .from(users)
+      .where(eq(users.id, userId));
+
+    const userRecord = user[0];
+
+    if (!userRecord) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isPasswordMatched = await verify(
+      userRecord.password,
+      changePasswordDto.oldPassword,
+    );
+
+    if (!isPasswordMatched)
+      throw new UnauthorizedException('كلمة المرور غير صحيحة');
+
+    const hashedPassword = await hash(changePasswordDto.newPassword);
+    return await this.db
+      .update(users)
+      .set({ password: hashedPassword })
       .where(eq(users.id, userId));
   }
 }

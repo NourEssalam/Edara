@@ -118,9 +118,6 @@ export function UpdateUserForm({
             startTransition(() => {
               formAction(formData);
             });
-            if (state.message.includes("success")) {
-              // form.reset();
-            }
           })}
           className="rounded-lg  grid grid-cols-1 md:grid-cols-2 gap-4 p-6 "
         >
@@ -220,7 +217,11 @@ export function UpdateUserForm({
             )}
           />
 
-          <Button disabled={isPending} type="submit">
+          <Button
+            disabled={isPending}
+            type="submit"
+            onClick={() => console.log(form.getValues())}
+          >
             حفظ
           </Button>
         </form>

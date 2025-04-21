@@ -16,6 +16,8 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from '@repo/shared-types';
 import { GetUsersQueryDto } from './dto/query-users-list.dto';
 import { UpdateUserBySuperAdminDto } from './dto/update-user.dto';
+import { EditUserProfileDto } from './dto/edit-user-profile-info.dto';
+import { ChangePasswordDto } from './dto/change-password-by-user.dto';
 // import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('user')
@@ -90,11 +92,42 @@ export class UserController {
   }
 
   // Then dynamic endpoints
-  @Public()
+  // @Public()
   @Get('find-user/:id')
   async findOne(@Param('id') id: string) {
     // Note: URL params come as strings
     const userId = parseInt(id, 10); // Convert to number
     return await this.userService.findOneById(userId);
+  }
+
+  // @Public()
+  @Get('get-user-profile-info/:id')
+  async getUserProfileInfo(@Param('id') id: number) {
+    // const userId = parseInt(id, 10); // Convert to number
+    return await this.userService.getUserProfileInfo(id);
+  }
+
+  @Patch('update-user-profile-info/:id')
+  async updateUserProfileInfo(
+    @Param('id') id: string,
+    @Body() editUserProfileDto: EditUserProfileDto,
+  ) {
+    const userId = parseInt(id, 10); // Convert to number
+    return await this.userService.editUserProfileInfo(
+      userId,
+      editUserProfileDto,
+    );
+  }
+
+  @Patch('change-password-by-self/:id')
+  async changePasswordBySelf(
+    @Param('id') id: string,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    const userId = parseInt(id, 10); // Convert to number
+    return await this.userService.changePasswordBySelf(
+      userId,
+      changePasswordDto,
+    );
   }
 }
