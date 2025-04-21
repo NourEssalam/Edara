@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useActionState, useTransition, useRef, useEffect } from "react";
 import { z } from "zod";
-import { loginSchema } from "@/form-shema/auth";
+import { loginSchema } from "@/form-schemas/auth";
 import {
   Form,
   FormControl,

@@ -41,7 +41,7 @@ export class AuthService {
     if (user[0]) {
       throw new ConflictException('User already exists');
     }
-    return this.userService.create(createUserDto);
+    return this.userService.createNewUser(createUserDto);
   }
 
   async setupRegistration(firstSuperAdminDto: FirstSuperAdminDto) {
@@ -73,6 +73,10 @@ export class AuthService {
       sub: userId, // Make sure userId is actually a number here
       role: role,
     };
+
+    // const refreshTokenPayload: RefreshToeknPayload = {
+    //   sub: userId,
+    // }
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
       this.jwtService.signAsync(payload, this.refreshTokenConfig),
@@ -96,6 +100,8 @@ export class AuthService {
     );
     const hashRefreshToken = await hash(refreshToken);
     await this.userService.updateHashedRefreshToken(userId, hashRefreshToken);
+    // update last login time
+    await this.userService.updateLastLoginTime(userId);
 
     return {
       id: userId,
@@ -128,6 +134,7 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
+    //TODO : we need to provide the browser session id
     // Verify the refresh token
     try {
       const refreshTokenMatched = await verify(
@@ -187,7 +194,11 @@ export class AuthService {
   /// FORGOT PASSWORD
   async forgotPassword(email: string) {
     const user = await this.userService.findOneByEmail(email);
-    if (!user[0]) throw new UnauthorizedException('not found');
+    if (!user[0]) {
+      console.log('not found');
+      throw new UnauthorizedException('not found');
+    }
+
     const { token, hashedToken } = await this.generateResetToken();
 
     // Calculate expiration (e.g., 1 hour from now)
@@ -238,6 +249,82 @@ export class AuthService {
   /// RESET PASSWORD
 
   async resetPassword(token: string, newPassword: string) {
+    // Hash the provided token
+    const hashedToken = createHash('sha256').update(token).digest('hex');
+
+    // Look up the token in the database
+    const resetTokenRecord = await this.db
+      .select()
+      .from(passwordResetTokens)
+      .where(eq(passwordResetTokens.hashedToken, hashedToken))
+      .limit(1);
+
+    if (!resetTokenRecord[0]) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
+    // Check if token is expired
+    if (new Date() > resetTokenRecord[0].expiresAt) {
+      // Delete expired token
+      await this.db
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.id, resetTokenRecord[0].id));
+      throw new UnauthorizedException('Token expired');
+    }
+
+    // Get user and update password
+    const user = await this.userService.findOneById(resetTokenRecord[0].userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Hash the new password (using Argon2 or whatever you use for passwords)
+    const hashedPassword = await hash(newPassword);
+
+    // Update the user's password
+    await this.userService.updatePassword(user.id, hashedPassword);
+
+    // Delete the used token
+    await this.db
+      .delete(passwordResetTokens)
+      .where(eq(passwordResetTokens.id, resetTokenRecord[0].id));
+
+    return { message: 'Password updated successfully' };
+  }
+
+  async newUserPasswordSetup(email: string) {
+    const user = await this.userService.findOneByEmail(email);
+    if (!user[0]) throw new UnauthorizedException('not found');
+    const { token, hashedToken } = await this.generateResetToken();
+
+    // Calculate expiration (e.g., 75 hour from now)
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 75);
+
+    // Delete any existing reset tokens for this user
+    await this.db
+      .delete(passwordResetTokens)
+      .where(eq(passwordResetTokens.userId, user[0].id));
+
+    // Insert the new reset token into the database
+    // Save new token in the reset table
+    await this.db.insert(passwordResetTokens).values({
+      userId: user[0].id,
+      hashedToken: hashedToken,
+      expiresAt: expiresAt,
+    });
+
+    // Send the email with reset link
+    await this.emailService.sendPasswordResetEmail(user[0].email, token);
+
+    // Return success message (don't return the token in production)
+    return {
+      message: 'Password reset instructions sent to your email',
+      email: user[0].email,
+    };
+  }
+
+  async newUserActionPassword(token: string, newPassword: string) {
     // Hash the provided token
     const hashedToken = createHash('sha256').update(token).digest('hex');
 

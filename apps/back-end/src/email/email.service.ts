@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { users } from 'src/drizzle/schema/users.schema';
 
 @Injectable()
 export class EmailService {
@@ -83,6 +84,61 @@ export class EmailService {
         },
       );
 
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        'Error sending password reset email:',
+        error.response?.data || error.message,
+      );
+      throw error;
+    }
+  }
+
+  //// **************************************************
+  //// sendCredentialsToUser
+  //// **************************************************
+  async sendCredentialsToUser(
+    full_name: string,
+    email: string,
+    password: string,
+  ): Promise<any> {
+    const emailData = {
+      sender: {
+        name: this.senderName,
+        email: this.senderEmail,
+      },
+      to: [{ email }],
+      subject: 'Your Login Credentials',
+      htmlContent: `
+        <html>
+          <body>
+            <p>Hi ${full_name},</p>
+            <h1>Here are your login credentials:</h1>
+            <p>Email: ${email}</p>
+            <p>Password: ${password}</p>
+          </body>
+        </html>
+      `,
+      textContent: `
+        Here are your login credentials:
+        
+        Email: ${email}
+        Password: ${password}
+      `,
+    };
+
+    try {
+      const response = await axios.post(
+        'https://api.brevo.com/v3/smtp/email',
+        emailData,
+        {
+          headers: {
+            accept: 'application/json',
+            'api-key': this.apiKey,
+            'content-type': 'application/json',
+          },
+        },
+      );
       return response.data;
     } catch (error: any) {
       console.error(

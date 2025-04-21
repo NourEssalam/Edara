@@ -13,7 +13,7 @@ import {
   useEffect,
 } from "react";
 import { z } from "zod";
-import { forgotPasswordSchema } from "@/form-shema/auth";
+import { forgotPasswordSchema } from "@/form-schemas/auth";
 import {
   Form,
   FormControl,

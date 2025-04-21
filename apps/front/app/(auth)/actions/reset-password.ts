@@ -1,5 +1,5 @@
 "use server";
-import { resetPasswordSchema } from "@/form-shema/auth";
+import { resetPasswordSchema } from "@/form-schemas/auth";
 import { BACKEND_URL } from "@/lib/constants";
 export type FormState = {
   message: string;
@@ -45,7 +45,7 @@ export async function onSubmitAction(
 
   try {
     const response = await fetch(`${BACKEND_URL}/auth/reset-password`, {
-      method: "POST",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },

@@ -1,5 +1,5 @@
 "use server";
-import { loginSchema } from "@/form-shema/auth";
+import { loginSchema } from "@/form-schemas/auth";
 import { BACKEND_URL } from "@/lib/constants";
 import { createSession } from "@/lib/session";
 export type FormState = {

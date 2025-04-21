@@ -1,6 +1,6 @@
 "use server";
 
-import { signUpSchema } from "@/form-shema/auth";
+import { signUpSchema } from "@/form-schemas/auth";
 import { BACKEND_URL } from "@/lib/constants";
 
 export type FormState = {

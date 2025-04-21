@@ -7,8 +7,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const response = await authFetch(`${BACKEND_URL}/auth/logout`, {
-    method: "POST",
+  await authFetch(`${BACKEND_URL}/auth/logout`, {
+    method: "PATCH",
   });
 
   // Create a response that will redirect to /login

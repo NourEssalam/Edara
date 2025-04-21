@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useActionState, useTransition, useRef, useEffect } from "react";
 import { z } from "zod";
-import { resetPasswordSchema } from "@/form-shema/auth";
+import { resetPasswordSchema } from "@/form-schemas/auth";
 import {
   Form,
   FormControl,

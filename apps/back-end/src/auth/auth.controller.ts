@@ -5,6 +5,7 @@ import {
   UseGuards,
   Request,
   Get,
+  Patch,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -24,13 +25,6 @@ export class AuthController {
   @Post('setup')
   setupFirstAdmin(@Body() firstSuperAdminDto: FirstSuperAdminDto) {
     return this.authService.setupRegistration(firstSuperAdminDto);
-  }
-
-  // this endpoint is for registering a new user by a super admin
-  @Public()
-  @Post('register')
-  registerNewUser(@Body() createUserDto: CreateUserDto) {
-    return this.authService.registerNewUser(createUserDto);
   }
 
   // Login
@@ -71,7 +65,7 @@ export class AuthController {
     );
   }
 
-  @Post('logout')
+  @Patch('logout')
   logout(@Request() req) {
     console.log('id from logout', req.user.id);
     return this.authService.logout(req.user.id);
@@ -90,7 +84,7 @@ export class AuthController {
   }
 
   @Public()
-  @Post('reset-password')
+  @Patch('reset-password')
   resetPassword(@Request() req) {
     return this.authService.resetPassword(req.body.token, req.body.password);
   }
