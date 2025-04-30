@@ -107,6 +107,12 @@ export class UserController {
     return await this.userService.getUserProfileInfo(id);
   }
 
+  @Public()
+  @Get('count-super-admins')
+  async countSuperAdmins() {
+    return await this.userService.countSuperAdmins();
+  }
+
   @Patch('update-user-profile-info/:id')
   async updateUserProfileInfo(
     @Param('id') id: string,

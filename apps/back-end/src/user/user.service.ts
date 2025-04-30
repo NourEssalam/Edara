@@ -44,6 +44,18 @@ export class UserService {
       .where(eq(users.email, email));
   }
 
+  async countSuperAdmins() {
+    const superAdmins = await this.db.$count(
+      users,
+      eq(users.role, 'SUPER_ADMIN'),
+    );
+    console.log('superAdmins', superAdmins);
+    if (superAdmins === 1) {
+      throw new NotFoundException('يوجد مشرف عام واحد فقط، لا يمكنك حذفه');
+    }
+    return superAdmins;
+  }
+
   async findOneByEmail(email: string) {
     return await this.db
       .selectDistinct()

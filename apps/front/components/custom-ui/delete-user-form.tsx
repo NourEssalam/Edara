@@ -106,6 +106,7 @@ export function DeleteUserForm({
             // Add the user ID to the form data
             formData.append("userId", id);
             formData.append("full_name", user.full_name);
+            formData.append("role", user.role);
 
             startTransition(() => {
               formAction(formData);

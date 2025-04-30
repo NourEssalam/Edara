@@ -38,6 +38,36 @@ export async function deleteUser(
     };
   }
 
+  // if user in the only super admin we can't delete him
+  try {
+    const response = await authFetch(
+      `${BACKEND_URL}/user/count-super-admins/`,
+      {
+        method: "GET",
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.log({
+        message:
+          errorData?.message ||
+          `Error: ${response.status} ${response.statusText}`,
+      });
+      return {
+        message:
+          errorData?.message ||
+          `Error: ${response.status} ${response.statusText}`,
+      };
+    }
+  } catch (e) {
+    console.error("Error when submitting form", e);
+    console.log(e instanceof Error ? e.message : "Something went wrong");
+    return {
+      message: "حدث خطاء ما",
+    };
+  }
+
   const { userId } = parsed.data;
   try {
     const response = await authFetch(
