@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import type { ConfigType } from '@nestjs/config';
-import { AuthJWTPayload } from '../types/auth.jwtPayload';
+import { AuthJWTPayload, RefreshToeknPayload } from '../types/auth.jwtPayload';
 import { AuthService } from '../auth.service';
 import refreshConfig from '../config/refresh.config';
 import { Request } from 'express';
@@ -23,11 +23,17 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh-jwt') {
   }
 
   // request.user
-  async validate(req: Request, payload: AuthJWTPayload) {
+  async validate(req: Request, payload: RefreshToeknPayload) {
     const userId = payload.sub;
-
+    const browserSessionID = payload.browserSessionID;
+    console.log('browserSessionID from payload', browserSessionID);
+    console.log('browserSessionID from body', req.body.browserSessionID);
     const refreshToken = req.body.refresh;
     // TODO : WE NEED TO PASS THE BROWSER SESSION ID
-    return this.authService.validateRefreshToken(userId, refreshToken);
+    return this.authService.validateRefreshToken(
+      userId,
+      refreshToken,
+      browserSessionID,
+    );
   }
 }

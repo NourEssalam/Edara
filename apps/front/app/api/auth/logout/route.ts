@@ -1,15 +1,26 @@
-import { authFetch } from "@/lib/authFetch";
+// import { authFetch } from "@/lib/authFetch";
 import { BACKEND_URL } from "@/lib/constants";
+import { getSession } from "@/lib/session";
 
 // import { revalidatePath } from "next/cache";
 
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  await authFetch(`${BACKEND_URL}/auth/logout`, {
-    method: "PATCH",
-  });
+  const session = await getSession();
+  if (!session || !session.browserSessionID) {
+    console.log("no session");
+    return NextResponse.redirect(new URL("/", req.nextUrl));
+  }
+  await fetch(
+    `${BACKEND_URL}/auth/logout/${session.user.id}/${session.browserSessionID}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   // Create a response that will redirect to /login
   const redirectResponse = NextResponse.redirect(

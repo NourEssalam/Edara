@@ -4,7 +4,7 @@ import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { encodedKey } from "./constants";
-import { Session, User } from "@/types/auth-types";
+import { Session } from "@/types/auth-types";
 
 export async function createSession(payload: Session) {
   const expiredAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
@@ -47,21 +47,21 @@ export async function destroySession() {
   cookieStore.delete("session");
 }
 
-export async function updateTokens({
-  accessToken,
-  refreshToken,
-  user,
-}: {
-  accessToken: string;
-  refreshToken: string;
-  user: User;
-}) {
-  const newPayload: Session = {
-    user: {
-      ...user,
-    },
-    accessToken, // new access token
-    refreshToken, // new refresh token
-  };
-  await createSession(newPayload);
-}
+// export async function updateTokens({
+//   accessToken,
+//   refreshToken,
+//   user,
+// }: {
+//   accessToken: string;
+//   refreshToken: string;
+//   user: User;
+// }) {
+//   const newPayload: Session = {
+//     user: {
+//       ...user,
+//     },
+//     accessToken, // new access token
+//     refreshToken, // new refresh token
+//   };
+//   await createSession(newPayload);
+// }

@@ -27,6 +27,7 @@ import { UpdateUserBySuperAdminDto } from './dto/update-user.dto';
 import { EmailService } from 'src/email/email.service';
 import { EditUserProfileDto } from './dto/edit-user-profile-info.dto';
 import { ChangePasswordDto } from './dto/change-password-by-user.dto';
+import { browserSessions } from 'src/drizzle/schema/browser-session.schema';
 
 @Injectable()
 export class UserService {
@@ -91,12 +92,18 @@ export class UserService {
   async updateHashedRefreshToken(
     userId: number,
     hashedRefreshToken: string | null,
+    browserSessionID: number,
   ) {
     console.log('user.service : update refresh token', hashedRefreshToken);
     return await this.db
-      .update(users)
+      .update(browserSessions)
       .set({ hashed_refresh_token: hashedRefreshToken })
-      .where(eq(users.id, userId));
+      .where(
+        and(
+          eq(browserSessions.user_id, userId),
+          eq(browserSessions.id, browserSessionID),
+        ),
+      );
   }
 
   async updatePassword(userId: number, hashPassword: string) {

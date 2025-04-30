@@ -49,6 +49,7 @@ export async function onSubmitAction(
         },
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
+        browserSessionID: result.browserSessionID,
       });
 
       return {
