@@ -8,5 +8,5 @@ export type AuthJWTPayload = {
 export type RefreshToeknPayload = {
   sub: number;
   role: UserRole;
-  browserSessionsID: number;
+  browserSessionID: number;
 };

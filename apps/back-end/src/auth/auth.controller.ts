@@ -6,6 +6,8 @@ import {
   Request,
   Get,
   Patch,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -53,7 +55,8 @@ export class AuthController {
   @Public()
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
-  refresh(@Request() req) {
+  refresh(@Request() req, @Body() body) {
+    console.log('body', body);
     console.log(
       'auth.controle : we hare hitting the refresh token in the server',
     );
@@ -62,13 +65,18 @@ export class AuthController {
       req.user.email,
       req.user.full_name,
       req.user.role,
+      body.browserSessionID,
     );
   }
 
-  @Patch('logout')
-  logout(@Request() req) {
-    console.log('id from logout', req.user.id);
-    return this.authService.logout(req.user.id);
+  @Public()
+  @Delete('logout/:userID/:browserSessionID')
+  logout(
+    @Param('userID') user_id: string,
+    @Param('browserSessionID') browserSessionID: number,
+  ) {
+    const userID = parseInt(user_id, 10);
+    return this.authService.logout(userID, browserSessionID);
   }
 
   @Get('check-access')

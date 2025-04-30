@@ -9,6 +9,7 @@ export type Session = {
   };
   accessToken: string;
   refreshToken: string;
+  browserSessionID: number;
 };
 
 export type User = {

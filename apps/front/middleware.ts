@@ -96,7 +96,9 @@ export async function middleware(req: NextRequest) {
         algorithms: ["HS256"],
       });
 
-      const { accessToken, refreshToken } = payload as Session;
+      const { user, accessToken, refreshToken, browserSessionID } =
+        payload as Session;
+      console.log("browserSessionID", browserSessionID);
 
       // Create response and set auth header
       const requestHeaders = new Headers(req.headers);
@@ -129,23 +131,32 @@ export async function middleware(req: NextRequest) {
           const refreshResponse = await fetch(`${BACKEND_URL}/auth/refresh`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refresh: refreshToken }),
+            body: JSON.stringify({ refresh: refreshToken, browserSessionID }),
           });
 
           if (refreshResponse.ok) {
-            const {
-              accessToken: newAccessToken,
-              refreshToken: newRefreshToken,
-            } = await refreshResponse.json();
+            const responseData = await refreshResponse.json();
+            console.log("Response data received:", responseData);
 
-            console.log("Middleware: Token refreshed successfully");
-
-            // Update session with new tokens
+            // Create a proper Session object
             const newPayload: Session = {
-              user: { ...(payload.user as User) },
-              accessToken: newAccessToken,
-              refreshToken: newRefreshToken,
+              user: {
+                id: responseData.id.toString(),
+                email: responseData.email || user.email, // Try response data first, fall back to existing
+                full_name: responseData.full_name || user.full_name,
+                role: responseData.role || user.role,
+              },
+              accessToken: responseData.accessToken,
+              refreshToken: responseData.refreshToken,
+              browserSessionID: responseData.browserSessionID,
             };
+
+            console.log(
+              "New session payload user fields:",
+              Object.keys(newPayload.user).map(
+                (k) => `${k}: ${!!(newPayload.user as any)[k]}`
+              )
+            );
 
             const session = await new SignJWT(newPayload)
               .setProtectedHeader({ alg: "HS256" })
@@ -160,6 +171,8 @@ export async function middleware(req: NextRequest) {
               sameSite: "lax",
               path: "/",
             });
+
+            console.log("New session cookie set successfully");
           } else {
             // If refresh fails, redirect to login
             console.log("Middleware: Failed to refresh token");
@@ -172,6 +185,7 @@ export async function middleware(req: NextRequest) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       console.log("Middleware: Invalid session, redirecting to login...");
+
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }

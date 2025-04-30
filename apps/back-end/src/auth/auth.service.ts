@@ -10,7 +10,7 @@ import type { Database } from 'src/drizzle/types/drizzle';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { FirstSuperAdminDto } from 'src/user/dto/first-super-admin.dto';
 import { UserService } from 'src/user/user.service';
-import { AuthJWTPayload } from './types/auth.jwtPayload';
+import { AuthJWTPayload, RefreshToeknPayload } from './types/auth.jwtPayload';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@repo/shared-types';
 import refreshConfig from './config/refresh.config';
@@ -19,8 +19,9 @@ import type { ConfigType } from '@nestjs/config';
 import crypto from 'crypto';
 import { createHash } from 'crypto';
 import { passwordResetTokens } from 'src/drizzle/schema/reset-password.schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { EmailService } from 'src/email/email.service';
+import { browserSessions } from 'src/drizzle/schema/browser-session.schema';
 
 @Injectable()
 export class AuthService {
@@ -68,18 +69,24 @@ export class AuthService {
     };
   }
 
-  async generateToken(userId: number, role: UserRole) {
+  async generateToken(
+    userId: number,
+    role: UserRole,
+    browserSessionID: number,
+  ) {
     const payload: AuthJWTPayload = {
       sub: userId, // Make sure userId is actually a number here
       role: role,
     };
 
-    // const refreshTokenPayload: RefreshToeknPayload = {
-    //   sub: userId,
-    // }
+    const refreshTokenPayload: RefreshToeknPayload = {
+      sub: userId,
+      role: role,
+      browserSessionID: browserSessionID,
+    };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
-      this.jwtService.signAsync(payload, this.refreshTokenConfig),
+      this.jwtService.signAsync(refreshTokenPayload, this.refreshTokenConfig),
     ]);
 
     return {
@@ -94,12 +101,31 @@ export class AuthService {
     full_name: string,
     role: UserRole,
   ) {
+    const browserSessionID = await this.db
+      .insert(browserSessions)
+      .values({
+        user_id: userId,
+        hashed_refresh_token: null,
+      })
+      .returning({
+        id: browserSessions.id,
+      });
+
+    if (!browserSessionID[0])
+      throw new UnauthorizedException('browser session not created');
+
     const { accessToken, refreshToken } = await this.generateToken(
       userId,
       role,
+      browserSessionID[0].id,
     );
+
     const hashRefreshToken = await hash(refreshToken);
-    await this.userService.updateHashedRefreshToken(userId, hashRefreshToken);
+    await this.userService.updateHashedRefreshToken(
+      userId,
+      hashRefreshToken,
+      browserSessionID[0].id,
+    );
     // update last login time
     await this.userService.updateLastLoginTime(userId);
 
@@ -110,6 +136,7 @@ export class AuthService {
       role,
       accessToken,
       refreshToken,
+      browserSessionID: browserSessionID[0].id,
     };
   }
 
@@ -125,20 +152,32 @@ export class AuthService {
     return currentuser;
   }
 
-  async validateRefreshToken(userId: number, refreshToken: string) {
+  async validateRefreshToken(
+    userId: number,
+    refreshToken: string,
+    browserSessionID: number,
+  ) {
     // Find the user by ID
     const user = await this.userService.findOneById(userId);
-
+    const browserSession = await this.db
+      .select()
+      .from(browserSessions)
+      .where(
+        and(
+          eq(browserSessions.user_id, userId),
+          eq(browserSessions.id, browserSessionID),
+        ),
+      );
     // Check if user exists
-    if (!user) {
-      throw new UnauthorizedException('User not found');
+    if (!user || !browserSession[0]) {
+      throw new UnauthorizedException('User or any browser session not found ');
     }
 
     //TODO : we need to provide the browser session id
     // Verify the refresh token
     try {
       const refreshTokenMatched = await verify(
-        user.hashed_refresh_token ?? '',
+        browserSession[0].hashed_refresh_token ?? '',
         refreshToken,
       );
 
@@ -163,13 +202,19 @@ export class AuthService {
     email: string,
     full_name: string,
     role: UserRole,
+    browserSessionID: number,
   ) {
     const { accessToken, refreshToken } = await this.generateToken(
       userId,
       role,
+      browserSessionID,
     );
     const hashRefreshToken = await hash(refreshToken);
-    await this.userService.updateHashedRefreshToken(userId, hashRefreshToken);
+    await this.userService.updateHashedRefreshToken(
+      userId,
+      hashRefreshToken,
+      browserSessionID,
+    );
 
     return {
       id: userId,
@@ -178,16 +223,24 @@ export class AuthService {
       role,
       accessToken,
       refreshToken,
+      browserSessionID,
     };
   }
 
   ////////////////////
   /// LOGOUT
-  async logout(userId: number) {
+  async logout(userId: number, browserSessionID: number) {
     console.log('id from logout', userId);
 
     console.log('logout');
-    return await this.userService.updateHashedRefreshToken(userId, null);
+    return await this.db
+      .delete(browserSessions)
+      .where(
+        and(
+          eq(browserSessions.user_id, userId),
+          eq(browserSessions.id, browserSessionID),
+        ),
+      );
   }
 
   ////////////////////
