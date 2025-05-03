@@ -21,7 +21,7 @@ export async function middleware(req: NextRequest) {
   const isApiRoute = apiRoutes.some((route) => pathname.startsWith(route));
 
   // Check if the current request is to delete the session (logout)
-  const isLogoutRoute = pathname === "/api/auth/logout";
+  // const isLogoutRoute = pathname === "/api/auth/logout";
 
   if (
     req.headers.has("cookie") &&
@@ -29,15 +29,9 @@ export async function middleware(req: NextRequest) {
   ) {
     // This indicates a logout in progress - allow the redirect to login page
     // without checking session validity
-    console.log("Middleware: Session cookie being deleted, allowing redirect");
+
     return NextResponse.next();
   }
-
-  // If this is a logout request, always allow it
-  // if (isLogoutRoute) {
-  //   console.log("Middleware: Logout route, allowing redirect");
-  //   return NextResponse.next();
-  // }
 
   if (isPublicRoute) {
     const response = NextResponse.next();
@@ -48,9 +42,6 @@ export async function middleware(req: NextRequest) {
   const sessionValue = req.cookies.get("session")?.value;
 
   if (!sessionValue && !isPublicRoute && !isApiRoute) {
-    console.log("sessionValue", sessionValue);
-
-    console.log("Middleware: Not authenticated, redirecting to login...");
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -63,9 +54,6 @@ export async function middleware(req: NextRequest) {
     !isApiRoute &&
     !req.nextUrl.searchParams.has("logout")
   ) {
-    console.log(
-      "Middleware: Already authenticated, redirecting to dashboard..."
-    );
     return NextResponse.redirect(new URL("/", req.url));
   }
 
@@ -98,7 +86,6 @@ export async function middleware(req: NextRequest) {
 
       const { user, accessToken, refreshToken, browserSessionID } =
         payload as Session;
-      console.log("browserSessionID", browserSessionID);
 
       // Create response and set auth header
       const requestHeaders = new Headers(req.headers);
@@ -126,8 +113,6 @@ export async function middleware(req: NextRequest) {
 
         // Only refresh if we get a 401 Unauthorized
         if (validateResponse.status === 401 && refreshToken) {
-          console.log("Middleware: Token expired, refreshing...");
-
           const refreshResponse = await fetch(`${BACKEND_URL}/auth/refresh`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -151,12 +136,12 @@ export async function middleware(req: NextRequest) {
               browserSessionID: responseData.browserSessionID,
             };
 
-            console.log(
-              "New session payload user fields:",
-              Object.keys(newPayload.user).map(
-                (k) => `${k}: ${!!(newPayload.user as any)[k]}`
-              )
-            );
+            // console.log(
+            //   "New session payload user fields:",
+            //   Object.keys(newPayload.user).map(
+            //     (k) => `${k}: ${!!(newPayload.user as any)[k]}`
+            //   )
+            // );
 
             const session = await new SignJWT(newPayload)
               .setProtectedHeader({ alg: "HS256" })
@@ -172,10 +157,10 @@ export async function middleware(req: NextRequest) {
               path: "/",
             });
 
-            console.log("New session cookie set successfully");
+            // console.log("New session cookie set successfully");
           } else {
             // If refresh fails, redirect to login
-            console.log("Middleware: Failed to refresh token");
+            // console.log("Middleware: Failed to refresh token");
             return NextResponse.redirect(new URL("/login", req.url));
           }
         }
@@ -184,7 +169,7 @@ export async function middleware(req: NextRequest) {
       return response;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.log("Middleware: Invalid session, redirecting to login...");
+      // console.log("Middleware: Invalid session, redirecting to login...");
 
       return NextResponse.redirect(new URL("/login", req.url));
     }

@@ -1,5 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+// import { useEffect, useState } from "react";
+
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";
@@ -554,15 +557,17 @@ const SidebarMenuButton = React.forwardRef<
     asChild?: boolean;
     isActive?: boolean;
     tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+    pathname?: string;
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
     {
       asChild = false,
-      isActive = false,
+      // isActive = false,
       variant = "default",
       size = "default",
       tooltip,
+      pathname,
       className,
       ...props
     },
@@ -570,14 +575,21 @@ const SidebarMenuButton = React.forwardRef<
   ) => {
     const Comp = asChild ? Slot : "button";
     const { isMobile, state } = useSidebar();
-
+    const pathnameLink = usePathname();
+    // if (pathname === pathnameLink) {
+    //   isActive = true;
+    // }
     const button = (
       <Comp
         ref={ref}
         data-sidebar="menu-button"
         data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+        // data-active={isActive}
+        className={cn(
+          sidebarMenuButtonVariants({ variant, size }),
+          className,
+          `${pathnameLink === pathname ? "text-amber-700" : ""}`
+        )}
         {...props}
       />
     );
@@ -594,7 +606,12 @@ const SidebarMenuButton = React.forwardRef<
 
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipTrigger
+          asChild
+          className={`${pathnameLink === pathname ? "text-amber-700" : ""}`}
+        >
+          {button}
+        </TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"

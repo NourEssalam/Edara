@@ -22,6 +22,7 @@ import { passwordResetTokens } from 'src/drizzle/schema/reset-password.schema';
 import { eq, and } from 'drizzle-orm';
 import { EmailService } from 'src/email/email.service';
 import { browserSessions } from 'src/drizzle/schema/browser-session.schema';
+import { users } from 'src/drizzle/schema/users.schema';
 
 @Injectable()
 export class AuthService {
@@ -197,16 +198,32 @@ export class AuthService {
     }
   }
 
+  async getSessionData(userId: number) {
+    const user = await this.db
+      .select({
+        email: users.email,
+        full_name: users.full_name,
+        role: users.role,
+      })
+      .from(users)
+      .where(eq(users.id, userId));
+    if (!user) throw new UnauthorizedException('oops user not found');
+    return user[0];
+  }
+
   async refreshToken(
     userId: number,
-    email: string,
-    full_name: string,
-    role: UserRole,
+
     browserSessionID: number,
   ) {
+    const userSessionData = await this.getSessionData(userId);
+    if (!userSessionData) {
+      throw new UnauthorizedException('User session data not found');
+    }
+    const { email, full_name, role } = userSessionData;
     const { accessToken, refreshToken } = await this.generateToken(
       userId,
-      role,
+      role as UserRole,
       browserSessionID,
     );
     const hashRefreshToken = await hash(refreshToken);

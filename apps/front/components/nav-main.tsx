@@ -20,11 +20,11 @@ export function NavMain({ items }: { items: MenuItem[] }) {
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
+              <SidebarMenuButton tooltip={item.title} pathname={item.url}>
                 {item.icon && <item.icon />}
                 <Link
                   href={item.url}
-                  className={buttonVariants({ variant: "link" })}
+                  // className={buttonVariants({ variant: "link" })}
                 >
                   {item.title}
                 </Link>

@@ -10,7 +10,6 @@ import {
   Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { FirstSuperAdminDto } from 'src/user/dto/first-super-admin.dto';
 import { LocalAuthGuard } from './local-auth/local-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
@@ -60,11 +59,10 @@ export class AuthController {
     console.log(
       'auth.controle : we hare hitting the refresh token in the server',
     );
+    console.log(req.user.id, req.user.email, req.user.full_name, req.user.role);
     return this.authService.refreshToken(
       req.user.id,
-      req.user.email,
-      req.user.full_name,
-      req.user.role,
+
       body.browserSessionID,
     );
   }
