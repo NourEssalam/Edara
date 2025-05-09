@@ -1,16 +1,17 @@
 import { pgTable, serial, varchar, timestamp } from 'drizzle-orm/pg-core';
-import { students } from './students.schema';
+
 import { relations } from 'drizzle-orm/relations';
 import { classCourses } from './courses-of-class.schema';
+import { teacherCourses } from './courses-of-teacher.schema';
 
-export const classes = pgTable('classes', {
+export const courses = pgTable('courses', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 50 }).notNull().unique(),
+  name: varchar('name', { length: 255 }).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export const classesRelations = relations(classes, ({ many }) => ({
-  students: many(students),
+export const coursesRelations = relations(courses, ({ many }) => ({
   classesToCourses: many(classCourses),
+  teachersToCourses: many(teacherCourses),
 }));

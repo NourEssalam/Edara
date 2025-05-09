@@ -1,5 +1,4 @@
 import {
-  // ArrowUpCircleIcon,
   BarChartIcon,
   CameraIcon,
   ClipboardListIcon,
@@ -32,11 +31,12 @@ export const navMainMenu: MenuItem[] = [
     icon: BarChartIcon,
     roles: [UserRole.LEAVE_ADMIN, UserRole.TEACHER],
   },
+  // class attendance
   {
-    title: "التصنيفات",
-    url: "/categories",
-    icon: ClipboardListIcon,
-    roles: [UserRole.TEACHER],
+    title: "الأقسام",
+    url: "/classes",
+    icon: FolderIcon,
+    roles: [UserRole.CLASS_ATTENDANCE_ADMIN],
   },
 ];
 

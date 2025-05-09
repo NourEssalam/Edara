@@ -12,6 +12,7 @@ import { UserRole, UserStatus } from '@repo/shared-types';
 import { relations } from 'drizzle-orm';
 import { passwordResetTokens } from './reset-password.schema';
 import { browserSessions } from './browser-session.schema';
+import { teachers } from './teachers.schema';
 
 // Define the user roles as an enum
 export const UserRoleEnum = pgEnum(
@@ -49,4 +50,8 @@ export const users = pgTable(
 export const usersRelations = relations(users, ({ one, many }) => ({
   passwordResetTokens: one(passwordResetTokens),
   browserSessions: many(browserSessions),
+  teacher: one(teachers, {
+    fields: [users.id],
+    references: [teachers.user_id],
+  }),
 }));
