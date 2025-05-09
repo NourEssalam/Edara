@@ -37,7 +37,7 @@ export async function createClass(
     const formData = new FormData();
     formData.append("class_name", parsed.data.class_name);
     formData.append("file", parsed.data.file);
-    const response = await fetch(
+    const response = await authFetch(
       `${BACKEND_URL}/class-attendance/create-class`,
       {
         method: "POST",

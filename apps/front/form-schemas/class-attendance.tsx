@@ -13,6 +13,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 // Form schema
 
+// create class
 export const classCreationSchema = z.object({
   class_name: z.string().min(4, "اسم القسم مطلوب (على الأقل 4 أحرف)"),
 
@@ -26,4 +27,17 @@ export const classCreationSchema = z.object({
       (file) => ACCEPTED_FILE_TYPES.includes(file.type),
       "يُسمح فقط بملفات CSV أو Excel"
     ),
+});
+
+// update class
+export const classUpdateSchema = z.object({
+  classId: z.string(),
+  class_name: z.string().min(4, "اسم القسم مطلوب (على الأقل 4 أحرف)"),
+});
+
+// delete class
+export const classDeleteSchema = z.object({
+  classId: z.string(),
+  class_name: z.string().min(4, "اسم القسم مطلوب (على الأقل 4 أحرف)"),
+  confirm_class_name: z.string().min(4, "اسم القسم مطلوب (على الأقل 4 أحرف)"),
 });
