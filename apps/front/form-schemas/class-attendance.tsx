@@ -41,3 +41,62 @@ export const classDeleteSchema = z.object({
   class_name: z.string().min(4, "اسم القسم مطلوب (على الأقل 4 أحرف)"),
   confirm_class_name: z.string().min(4, "اسم القسم مطلوب (على الأقل 4 أحرف)"),
 });
+
+/// studentCreationSchema;
+
+export const studentCreationSchema = z.object({
+  cin: z
+    .string()
+    .length(8, { message: "رقم التعريف الوطني يجب أن يكون مكون من 8 أرقام" })
+    .nonempty({ message: "رقم التعريف الوطني مطلوب" })
+    .regex(/^\d+$/, {
+      message: "رقم التعريف الوطني يجب أن يحتوي على أرقام فقط",
+    }),
+
+  first_name: z
+    .string()
+    .max(255, { message: "الاسم الشخصي يجب ألا يتجاوز 255 حرفًا" })
+    .nonempty({ message: "الاسم الشخصي مطلوب" }),
+  last_name: z
+    .string()
+    .max(255, { message: "الاسم العائلي يجب ألا يتجاوز 255 حرفًا" })
+    .nonempty({ message: "الاسم العائلي مطلوب" }),
+  class_id: z.string(),
+});
+
+export const studentUpdateSchema = z.object({
+  studentId: z.string(),
+  cin: z
+    .string()
+    .length(8, { message: "رقم التعريف الوطني يجب أن يكون مكون من 8 أرقام" })
+    .nonempty({ message: "رقم التعريف الوطني مطلوب" })
+    .regex(/^\d+$/, {
+      message: "رقم التعريف الوطني يجب أن يحتوي على أرقام فقط",
+    }),
+  first_name: z
+    .string()
+    .max(255, { message: "الاسم الشخصي يجب ألا يتجاوز 255 حرفًا" })
+    .nonempty({ message: "الاسم الشخصي مطلوب" }),
+  last_name: z
+    .string()
+    .max(255, { message: "الاسم العائلي يجب ألا يتجاوز 255 حرفًا" })
+    .nonempty({ message: "الاسم العائلي مطلوب" }),
+});
+
+export const studentDeleteSchema = z.object({
+  studentId: z.string(),
+  cin: z
+    .string()
+    .length(8, { message: "رقم التعريف الوطني يجب أن يكون مكون من 8 أرقام" })
+    .nonempty({ message: "رقم التعريف الوطني مطلوب" })
+    .regex(/^\d+$/, {
+      message: "رقم التعريف الوطني يجب أن يحتوي على أرقام فقط",
+    }),
+  confirm_cin: z
+    .string()
+    .length(8, { message: "رقم التعريف الوطني يجب أن يكون مكون من 8 أرقام" })
+    .nonempty({ message: "رقم التعريف الوطني مطلوب" })
+    .regex(/^\d+$/, {
+      message: "رقم التعريف الوطني يجب أن يحتوي على أرقام فقط",
+    }),
+});

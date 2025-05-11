@@ -13,17 +13,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import { UpdateClassDialog } from "@/components/custom-ui/class-attendance-components/update-class-dialog";
-import { DeleteClassDialog } from "@/components/custom-ui/class-attendance-components/delete-class-dialog";
+import { UpdateStudentDialog } from "@/components/custom-ui/class-attendance-components/update-student-dialog";
+import { DeleteStudentDialog } from "@/components/custom-ui/class-attendance-components/delete-student-dialog";
+
 // This type is used to define the shape of our data.
-export type ClassData = {
+export type StudentData = {
   id: string;
-  name: string;
-  created_at: Date; // Added from schema
-  updated_at: Date; // Added from schema
+  cin: string;
+  first_name: string;
+  last_name: string;
+  class_id: string;
+  created_at: Date;
+  updated_at: Date;
 };
 
-export function Action({ classes }: { classes: ClassData }) {
+export function Action({ student }: { student: StudentData }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -46,16 +50,24 @@ export function Action({ classes }: { classes: ClassData }) {
         onClick={(e) => e.stopPropagation()} // Prevent row click when clicking dropdown items
       >
         <DropdownMenuLabel>الإجراءات</DropdownMenuLabel>
-
+        <DropdownMenuItem
+          onClick={(e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(student.cin);
+          }}
+        >
+          نسخ رقم الموظف
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={(e) => e.stopPropagation()} asChild>
-          <UpdateClassDialog
-            classe={classes}
+          <UpdateStudentDialog
+            student={student}
             setDropdownOpen={setDropdownOpen}
           />
         </DropdownMenuItem>
         <DropdownMenuItem onClick={(e) => e.stopPropagation()} asChild>
-          <DeleteClassDialog
-            classe={classes}
+          <DeleteStudentDialog
+            student={student}
             setDropdownOpen={setDropdownOpen}
           />
         </DropdownMenuItem>
@@ -64,49 +76,59 @@ export function Action({ classes }: { classes: ClassData }) {
   );
 }
 
-export const columns: ColumnDef<ClassData>[] = [
+export const columns: ColumnDef<StudentData>[] = [
   {
     id: "إجراءات",
     cell: ({ row }) => {
-      const classe = row.original;
+      const student = row.original;
 
-      return <Action classes={classe} />;
+      return <Action student={student} />;
     },
   },
+
   {
-    accessorKey: "name",
+    accessorKey: "cin",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          اسم الصف
+          رقم بطاقات التعريف
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
   },
   {
-    accessorKey: "created_at",
-    enableGlobalFilter: false,
+    accessorKey: "first_name",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          تاريخ الإنشاء
+          اسم الطالب
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => {
-      const date = row.getValue("created_at") as Date;
-
-      return date ? format(date, "dd MMMM yyyy", { locale: arTN }) : "";
+  },
+  {
+    accessorKey: "last_name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          اسم العائلة
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
     },
   },
+
   {
     accessorKey: "updated_at",
     enableGlobalFilter: false,

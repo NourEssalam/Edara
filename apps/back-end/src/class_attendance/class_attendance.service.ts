@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 import { Readable } from 'stream';
 import { eq, inArray } from 'drizzle-orm';
 import { validateStudent } from './lib/students-data-validator';
+import { CreateStudentDto } from './dto/create-student.dto';
 @Injectable()
 export class ClassAttendanceService {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
@@ -209,5 +210,47 @@ export class ClassAttendanceService {
 
   async deleteClass(classId: number) {
     return await this.db.delete(classes).where(eq(classes.id, classId));
+  }
+
+  async getClass(classId: number) {
+    const classe = await this.db
+      .select()
+      .from(classes)
+      .where(eq(classes.id, classId));
+    return classe[0];
+  }
+
+  // get class students
+  async getClassStudents(classId: number) {
+    const studentsData = await this.db
+      .select()
+      .from(students)
+      .where(eq(students.class_id, classId));
+    return studentsData;
+  }
+
+  async addStudentsToClass(classId: number, studentData: CreateStudentDto) {
+    const student = await this.db
+      .select()
+      .from(students)
+      .where(eq(students.cin, studentData.cin));
+    if (student.length > 0) {
+      throw new UnauthorizedException('الطالب موجود بالفعل');
+    }
+    return await this.db
+      .insert(students)
+      .values({ ...studentData, class_id: classId });
+  }
+
+  // update student
+  async updateStudent(studentId: number, studentData: CreateStudentDto) {
+    return await this.db
+      .update(students)
+      .set({ ...studentData })
+      .where(eq(students.id, studentId));
+  }
+
+  async deleteStudent(studentId: number) {
+    return await this.db.delete(students).where(eq(students.id, studentId));
   }
 }

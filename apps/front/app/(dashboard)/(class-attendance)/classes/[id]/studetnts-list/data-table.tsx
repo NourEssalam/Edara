@@ -44,6 +44,7 @@ export function DataTable<TData, TValue>({
   data,
   onRowClick,
 }: DataTableProps<TData, TValue>) {
+  // const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -100,17 +101,14 @@ export function DataTable<TData, TValue>({
         />
       </div>
 
-      <div className="rounded-md border ">
-        <Table>
-          <TableHeader className="sticky top-0">
+      <div className="rounded-md border">
+        <Table dir="rtl" className="w-full">
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead
-                      key={header.id}
-                      className="direction-rtl text-right"
-                    >
+                    <TableHead key={header.id} className="text-right pr-6">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -143,7 +141,7 @@ export function DataTable<TData, TValue>({
                   className="cursor-pointer hover:bg-muted"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-right pr-6">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
