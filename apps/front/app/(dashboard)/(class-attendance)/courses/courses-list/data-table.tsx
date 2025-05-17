@@ -36,15 +36,12 @@ import { Button } from "@/components/ui/button";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onRowClick,
 }: DataTableProps<TData, TValue>) {
-  // const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -89,14 +86,17 @@ export function DataTable<TData, TValue>({
         />
       </div>
 
-      <div className="rounded-md border">
-        <Table dir="rtl" className="w-full">
-          <TableHeader>
+      <div className="rounded-md border ">
+        <Table>
+          <TableHeader className="sticky top-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="text-right pr-6">
+                    <TableHead
+                      key={header.id}
+                      className="direction-rtl text-right"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -116,10 +116,9 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className=" hover:bg-muted"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-right pr-6">
+                    <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

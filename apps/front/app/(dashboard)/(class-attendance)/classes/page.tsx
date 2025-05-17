@@ -18,7 +18,7 @@ export default async function ClassesPage() {
   const classes = await getAllClasses.json();
 
   return (
-    <Container className="flex flex-col gap-8 overflow-hidden">
+    <Container className="flex flex-col gap-8 overflow-hidden py-0 mt-0 ">
       <div dir="rtl" className="flex justify-between">
         <h1 className="text-2xl">الأقسام</h1>
         <CreateClassDialog />

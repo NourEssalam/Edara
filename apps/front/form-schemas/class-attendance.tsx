@@ -100,3 +100,30 @@ export const studentDeleteSchema = z.object({
       message: "رقم التعريف الوطني يجب أن يحتوي على أرقام فقط",
     }),
 });
+
+// create course
+export const courseCreationSchema = z.object({
+  course_name: z.string().nonempty({ message: "اسم الدرس مطلوب" }),
+  teacher_ids: z
+    .array(z.string())
+    .min(1, { message: "يجب اختيار أستاذ  واحد على الأقل" }),
+});
+
+// Define course update schema
+export const courseUpdateSchema = z.object({
+  course_id: z.string().min(1, "معرف الدرس مطلوب"),
+  course_name: z.string().min(1, "اسم الدرس مطلوب"),
+  teacher_ids: z.array(z.string()).min(1, "يجب اختيار معلم واحد على الأقل"),
+});
+
+// delete class
+export const courseDeleteSchema = z.object({
+  courseId: z.string(),
+  course_name: z.string().min(4, "اسم القسم مطلوب (على الأقل 4 أحرف)"),
+  confirm_course_name: z.string().min(4, "اسم القسم مطلوب (على الأقل 4 أحرف)"),
+});
+
+export const classCourseAssign = z.object({
+  course_id: z.string().min(1, "معرف الدرس مطلوب"),
+  class_id: z.string().min(1, "معرف القسم مطلوب"),
+});

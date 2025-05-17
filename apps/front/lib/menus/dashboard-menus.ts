@@ -7,6 +7,7 @@ import {
   FileIcon,
   FileTextIcon,
   FolderIcon,
+  GraduationCap,
   HelpCircleIcon,
   LayoutDashboardIcon,
   ListIcon,
@@ -38,6 +39,21 @@ export const navMainMenu: MenuItem[] = [
     icon: FolderIcon,
     roles: [UserRole.CLASS_ATTENDANCE_ADMIN],
   },
+  // courses
+  {
+    title: "الدروس",
+    url: "/courses",
+    icon: FileTextIcon,
+    roles: [UserRole.CLASS_ATTENDANCE_ADMIN],
+  },
+
+  // professors
+  // {
+  //   title: "الأساتذة",
+  //   url: "/teachers",
+  //   icon: GraduationCap,
+  //   roles: [UserRole.CLASS_ATTENDANCE_ADMIN],
+  // },
 ];
 
 // Secondary navigation menu

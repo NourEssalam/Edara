@@ -132,7 +132,8 @@ export async function middleware(req: NextRequest) {
                 role: responseData.role || user.role,
               },
               accessToken: responseData.accessToken,
-              refreshToken: responseData.refreshToken,
+              // refreshToken: responseData.refreshToken,
+              refreshToken: refreshToken,
               browserSessionID: responseData.browserSessionID,
             };
 

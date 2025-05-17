@@ -1,4 +1,10 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { DRIZZLE } from 'src/drizzle/drizzle.module';
 import { classes } from 'src/drizzle/schema/classes.schema';
 import { students } from 'src/drizzle/schema/students.schema';
@@ -7,9 +13,16 @@ import csv from 'csv-parser';
 
 import * as XLSX from 'xlsx';
 import { Readable } from 'stream';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, ilike, inArray, and, notInArray } from 'drizzle-orm';
 import { validateStudent } from './lib/students-data-validator';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { courses } from 'src/drizzle/schema/courses.schema';
+import { CreateCourseDto } from './dto/create-course.dto';
+import { teacherCourses } from 'src/drizzle/schema/courses-of-teacher.schema';
+import { teachers } from 'src/drizzle/schema/teachers.schema';
+import { users } from 'src/drizzle/schema/users.schema';
+import { classCourses } from 'src/drizzle/schema/courses-of-class.schema';
+
 @Injectable()
 export class ClassAttendanceService {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
@@ -252,5 +265,219 @@ export class ClassAttendanceService {
 
   async deleteStudent(studentId: number) {
     return await this.db.delete(students).where(eq(students.id, studentId));
+  }
+
+  // get courses
+  async getCourses() {
+    return await this.db.select().from(courses);
+  }
+
+  // get teachers
+  async getTeachers() {
+    // const teacherList = await this.db.query.teachers.findMany({
+    //   columns: {
+    //     id: true,
+    //   },
+    //   with: {
+    //     user: {
+    //       columns: {
+    //         full_name: true,
+    //       },
+    //     },
+    //   },
+    // });
+    const teachersList = await this.db
+      .select({
+        id: teachers.id,
+        name: users.full_name,
+      })
+      .from(teachers)
+      .leftJoin(users, eq(teachers.user_id, users.id));
+
+    return teachersList;
+  }
+
+  // get all teacher'snameand id  of a course [{id:1,name:'ali'},...]
+  async getTeachersOfCourse(courseId: number) {
+    const teachersList = await this.db
+      .select({
+        id: teachers.id,
+      })
+      .from(teachers)
+      .leftJoin(users, eq(teachers.user_id, users.id))
+      .leftJoin(teacherCourses, eq(teachers.id, teacherCourses.teacher_id))
+      .where(eq(teacherCourses.course_id, courseId));
+
+    // make it and array of string ['1','2','3']
+    const teacherIds = teachersList.map((teacher) => String(teacher.id));
+    return teacherIds;
+  }
+
+  // create course
+  async createCourse(courseDto: CreateCourseDto) {
+    // find the course name
+    const existingCourse = await this.db
+      .select()
+      .from(courses)
+      .where(eq(courses.name, courseDto.course_name));
+
+    if (existingCourse.length > 0) {
+      throw new BadRequestException('اسم الدرس موجود بالفعل');
+    }
+    // Step 1: Insert the course
+    const createdCourse = await this.db
+      .insert(courses)
+      .values({ name: courseDto.course_name })
+      .returning({ id: courses.id }); // To get the inserted course's ID
+
+    if (!createdCourse || !createdCourse[0] || !createdCourse[0].id) {
+      throw new NotFoundException('Course not found');
+    }
+
+    // Step 2: Insert into teacherCourses
+    const teacherCourseEntries = courseDto.teacher_ids.map((teacherId) => ({
+      course_id: createdCourse[0]!.id,
+      teacher_id: parseInt(teacherId), // Ensure the ID is a number
+    }));
+
+    await this.db.insert(teacherCourses).values(teacherCourseEntries);
+
+    return createdCourse;
+  }
+
+  async updateCourse(courseId: number, courseDto: CreateCourseDto) {
+    // // Step 1: Check if course exists
+    // const existingCourse = await this.db
+    //   .select()
+    //   .from(courses)
+    //   .where(eq(courses.id, courseId));
+
+    // if (existingCourse.length === 0) {
+    //   throw new NotFoundException('Course not found');
+    // }
+
+    // Step 2: Update the course name
+    await this.db
+      .update(courses)
+      .set({ name: courseDto.course_name })
+      .where(eq(courses.id, courseId));
+
+    // Step 3: Delete old teacher-course relations
+    await this.db
+      .delete(teacherCourses)
+      .where(eq(teacherCourses.course_id, courseId));
+
+    // Step 4: Insert new teacher-course relations
+    const newTeacherCourses = courseDto.teacher_ids.map((teacherId) => ({
+      course_id: courseId,
+      teacher_id: parseInt(teacherId),
+    }));
+
+    await this.db.insert(teacherCourses).values(newTeacherCourses);
+
+    return { message: 'Course updated successfully' };
+  }
+
+  // delete course
+  async deleteCourse(courseId: number) {
+    return await this.db.delete(courses).where(eq(courses.id, courseId));
+  }
+
+  /******************************* */
+  /* Courses classes */
+  /***************************** */
+
+  async getPaginatedCourses(page, pageSize, search, classId: number) {
+    const offset = (page - 1) * pageSize;
+
+    // Subquery: get course IDs already assigned to this class
+    const assignedCoursesSubquery = this.db
+      .select({ course_id: classCourses.course_id })
+      .from(classCourses)
+      .where(eq(classCourses.class_id, classId));
+
+    // Main query: fetch only unassigned courses (with optional search)
+    const searchQuery = this.db
+      .select({ id: courses.id, name: courses.name })
+      .from(courses)
+      .where(
+        and(
+          notInArray(courses.id, assignedCoursesSubquery),
+          search ? ilike(courses.name, `%${search}%`) : undefined,
+        ),
+      )
+      .as('searchQuery');
+
+    const total = await this.db.$count(searchQuery);
+
+    const getCourses = await this.db
+      .select()
+      .from(searchQuery)
+      .limit(pageSize * 1)
+      .offset(offset);
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    return {
+      getCourses,
+      total,
+      page,
+      pageSize,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    };
+  }
+
+  async getAssignedCourses(class_id: number) {
+    const assignedCourses = await this.db
+      .select({
+        id: courses.id,
+        name: courses.name,
+      })
+      .from(classCourses)
+      .innerJoin(courses, eq(classCourses.course_id, courses.id))
+      .where(eq(classCourses.class_id, class_id));
+
+    return assignedCourses;
+  }
+
+  // assign course to class
+  async assignCourseToClass(class_id: number, course_id: number) {
+    // Prevent duplicates
+    const exists = await this.db
+      .select()
+      .from(classCourses)
+      .where(
+        and(
+          eq(classCourses.class_id, class_id),
+          eq(classCourses.course_id, course_id),
+        ),
+      )
+      .limit(1);
+
+    if (exists.length > 0) {
+      throw new BadRequestException('Course already assigned to this class.');
+    }
+
+    // Insert assignment
+    await this.db.insert(classCourses).values({
+      class_id,
+      course_id,
+    });
+
+    return { message: 'Course assigned to class successfully' };
+  }
+
+  // remove course from class
+  async removeCourseFromClass(class_id: number, course_id: number) {
+    return await this.db
+      .delete(classCourses)
+      .where(
+        and(
+          eq(classCourses.class_id, class_id),
+          eq(classCourses.course_id, course_id),
+        ),
+      );
   }
 }
