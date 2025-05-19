@@ -22,6 +22,10 @@ import { teacherCourses } from 'src/drizzle/schema/courses-of-teacher.schema';
 import { teachers } from 'src/drizzle/schema/teachers.schema';
 import { users } from 'src/drizzle/schema/users.schema';
 import { classCourses } from 'src/drizzle/schema/courses-of-class.schema';
+import { CreateCourseSessionDto } from './dto/create-course-session.dto';
+import { courseSessions } from 'src/drizzle/schema/course-session.schema';
+import { SaveAttendanceDto } from './dto/save-attendance.dto';
+import { attendanceRecords } from 'src/drizzle/schema/attendance-record.schema';
 
 @Injectable()
 export class ClassAttendanceService {
@@ -479,5 +483,140 @@ export class ClassAttendanceService {
           eq(classCourses.course_id, course_id),
         ),
       );
+  }
+
+  /////////////////////////
+  // TEACHERS
+  /////////////////////////
+  // get teacher id by user id
+  async getTeacherByUserId(user_id: number) {
+    const teacher = await this.db.query.teachers.findFirst({
+      columns: {
+        id: true,
+      },
+      where: eq(teachers.user_id, user_id),
+    });
+    if (!teacher) {
+      throw new NotFoundException('Teacher not found');
+    }
+    return teacher.id;
+  }
+
+  // get teacher's courses by teacher id
+  async getCoursesOfTeacher(teacherId: number) {
+    const courses = await this.db.query.teacherCourses.findMany({
+      where: eq(teacherCourses.teacher_id, teacherId),
+      columns: {
+        id: true,
+
+        course_id: true,
+      },
+      with: {
+        courses: {
+          columns: {
+            id: true,
+            name: true,
+          },
+          with: {
+            classesToCourses: {
+              columns: {
+                course_id: true,
+              },
+              with: {
+                class: {
+                  columns: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // ✅ Filter: Only return courses that have at least one class
+    const filteredCourses = courses.filter(
+      (c) => c.courses.classesToCourses.length > 0,
+    );
+
+    return filteredCourses.map((c) => ({
+      courseId: c.courses.id,
+      courseName: c.courses.name,
+      classes: c.courses.classesToCourses.map((cc) => ({
+        classId: cc.class.id,
+        className: cc.class.name,
+      })),
+    }));
+  }
+
+  // create course session
+  async createCourseSession(courseSessionDto: CreateCourseSessionDto) {
+    const { class_id, course_id, topic, date } = courseSessionDto;
+
+    // Find the corresponding class-course relation
+    const cc = await this.db.query.classCourses.findFirst({
+      columns: { id: true },
+      where: and(
+        eq(classCourses.class_id, parseInt(class_id)),
+        eq(classCourses.course_id, parseInt(course_id)),
+      ),
+    });
+
+    if (!cc) {
+      throw new NotFoundException('Class or course not found');
+    }
+
+    // Insert the new course session
+    const [inserted] = await this.db
+      .insert(courseSessions)
+      .values({
+        class_course_id: cc.id,
+        topic,
+        date,
+      })
+      .returning({ id: courseSessions.id }); // ✅ correct syntax
+
+    if (!inserted) {
+      throw new Error('No rows were inserted');
+    }
+    // Return courseSession.id and the class_id from input
+    return {
+      id: inserted.id,
+      class_id: parseInt(class_id),
+    };
+  }
+
+  // save attendance records
+  async saveAttendance(dto: SaveAttendanceDto) {
+    const { courseSessionId, attendanceData } = dto;
+
+    for (const record of attendanceData) {
+      const existing = await this.db.query.attendanceRecords.findFirst({
+        where: and(
+          eq(attendanceRecords.student_id, record.studentId),
+          eq(attendanceRecords.course_session_id, courseSessionId),
+        ),
+      });
+
+      if (existing) {
+        await this.db
+          .update(attendanceRecords)
+          .set({
+            attendance_status: record.attendanceStatus,
+            updated_at: new Date(),
+          })
+          .where(eq(attendanceRecords.id, existing.id));
+      } else {
+        await this.db.insert(attendanceRecords).values({
+          student_id: record.studentId,
+          course_session_id: courseSessionId,
+          attendance_status: record.attendanceStatus,
+        });
+      }
+    }
+
+    return { success: true, message: 'تم حفظ الحضور بنجاح' };
   }
 }

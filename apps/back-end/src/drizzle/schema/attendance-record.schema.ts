@@ -25,8 +25,8 @@ export const attendanceRecords = pgTable('attendance_records', {
   student_id: integer('student_id')
     .references(() => students.id, { onDelete: 'cascade' })
     .notNull(),
-  attendance_status: AttendanceStatusEnum().default('ABSENT').notNull(),
-  note: text('note'), // Optional note about the attendance
+  attendance_status: AttendanceStatusEnum().notNull(),
+  // note: text('note'), // Optional note about the attendance
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
 });

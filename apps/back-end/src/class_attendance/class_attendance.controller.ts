@@ -19,6 +19,8 @@ import { UserRole } from '@repo/shared-types';
 import { parse } from 'path';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
+import { CreateCourseSessionDto } from './dto/create-course-session.dto';
+import { SaveAttendanceDto } from './dto/save-attendance.dto';
 
 @Controller('class-attendance')
 export class ClassAttendanceController {
@@ -210,4 +212,37 @@ export class ClassAttendanceController {
       course_id,
     );
   }
+
+  /////////////////////////
+  // TEACHERS
+  /////////////////////////
+
+  // get courses of specifc teacher
+  @Roles(UserRole.TEACHER)
+  @Get('teachers-courses-classes/:userId')
+  async getCoursesOfTeacher(@Param('userId') userId: string) {
+    console.log('userId', userId);
+    const user_id = parseInt(userId, 10);
+    console.log('user_id', user_id);
+    const teacher_id =
+      await this.classAttendanceService.getTeacherByUserId(user_id);
+
+    return this.classAttendanceService.getCoursesOfTeacher(teacher_id);
+  }
+
+  // create course session
+  @Roles(UserRole.TEACHER)
+  @Post('create-course-session')
+  async createCourseSession(@Body() courseSessionDto: CreateCourseSessionDto) {
+    return this.classAttendanceService.createCourseSession(courseSessionDto);
+  }
+
+  @Post('save-attendance')
+  async saveAttendance(@Body() dto: SaveAttendanceDto) {
+    return this.classAttendanceService.saveAttendance(dto);
+  }
+
+  /********************* */
+  /* ADMIN REPORTS */
+  /********************* */
 }

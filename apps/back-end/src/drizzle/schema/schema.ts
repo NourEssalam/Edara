@@ -4,5 +4,8 @@ export * from './classes.schema';
 export * from './students.schema';
 export * from './courses.schema';
 export * from './courses-of-teacher.schema';
+export * from './courses-of-class.schema';
 export * from './reset-password.schema';
 export * from './browser-session.schema';
+export * from './course-session.schema';
+export * from './attendance-record.schema';

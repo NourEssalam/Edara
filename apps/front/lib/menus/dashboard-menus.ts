@@ -14,6 +14,7 @@ import {
   SearchIcon,
   SettingsIcon,
   UsersIcon,
+  Disc2Icon,
 } from "lucide-react";
 
 import { UserRole } from "@repo/shared-types";
@@ -30,7 +31,7 @@ export const navMainMenu: MenuItem[] = [
     title: "التقارير",
     url: "/reports",
     icon: BarChartIcon,
-    roles: [UserRole.LEAVE_ADMIN, UserRole.TEACHER],
+    roles: [UserRole.LEAVE_ADMIN],
   },
   // class attendance
   {
@@ -47,13 +48,14 @@ export const navMainMenu: MenuItem[] = [
     roles: [UserRole.CLASS_ATTENDANCE_ADMIN],
   },
 
-  // professors
-  // {
-  //   title: "الأساتذة",
-  //   url: "/teachers",
-  //   icon: GraduationCap,
-  //   roles: [UserRole.CLASS_ATTENDANCE_ADMIN],
-  // },
+  /// Teachers role
+  // record students attendance
+  {
+    title: "تسجيل حضور الطلبة",
+    url: "/class-room",
+    icon: Disc2Icon,
+    roles: [UserRole.TEACHER],
+  },
 ];
 
 // Secondary navigation menu
