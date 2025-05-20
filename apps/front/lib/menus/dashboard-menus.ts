@@ -56,6 +56,13 @@ export const navMainMenu: MenuItem[] = [
     icon: Disc2Icon,
     roles: [UserRole.TEACHER],
   },
+
+  {
+    title: "سجلات الحضور",
+    url: "/attendance-records",
+    icon: ListIcon,
+    roles: [UserRole.CLASS_ATTENDANCE_ADMIN],
+  },
 ];
 
 // Secondary navigation menu

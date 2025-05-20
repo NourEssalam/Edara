@@ -13,7 +13,7 @@ import csv from 'csv-parser';
 
 import * as XLSX from 'xlsx';
 import { Readable } from 'stream';
-import { eq, ilike, inArray, and, notInArray } from 'drizzle-orm';
+import { eq, ilike, inArray, and, notInArray, sql } from 'drizzle-orm';
 import { validateStudent } from './lib/students-data-validator';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { courses } from 'src/drizzle/schema/courses.schema';
@@ -26,6 +26,7 @@ import { CreateCourseSessionDto } from './dto/create-course-session.dto';
 import { courseSessions } from 'src/drizzle/schema/course-session.schema';
 import { SaveAttendanceDto } from './dto/save-attendance.dto';
 import { attendanceRecords } from 'src/drizzle/schema/attendance-record.schema';
+import { AttendanceStatus } from '@repo/shared-types';
 
 @Injectable()
 export class ClassAttendanceService {
@@ -618,5 +619,43 @@ export class ClassAttendanceService {
     }
 
     return { success: true, message: 'تم حفظ الحضور بنجاح' };
+  }
+
+  /********* */
+  /* Admin reports */
+  /***********/
+  async getAllStudentsAttendanceRecords() {
+    return await this.db
+      .select({
+        studentId: students.id,
+        studentName: sql<string>`${students.first_name} || ' ' || ${students.last_name}`,
+        className: classes.name,
+        courseId: classCourses.course_id,
+        courseName: courses.name,
+        totalSessions: sql<number>`COUNT(*)`,
+        presentCount: sql<number>`COUNT(*) FILTER (WHERE ${attendanceRecords.attendance_status} = ${AttendanceStatus.PRESENT})`,
+        absentCount: sql<number>`COUNT(*) FILTER (WHERE ${attendanceRecords.attendance_status} = ${AttendanceStatus.ABSENT})`,
+        lateCount: sql<number>`COUNT(*) FILTER (WHERE ${attendanceRecords.attendance_status} = ${AttendanceStatus.LATE})`,
+        eliminated: sql<boolean>`COUNT(*) FILTER (WHERE ${attendanceRecords.attendance_status} = ${AttendanceStatus.ABSENT}) >= 3`,
+      })
+      .from(attendanceRecords)
+      .innerJoin(students, eq(attendanceRecords.student_id, students.id))
+      .innerJoin(classes, eq(students.class_id, classes.id))
+      .innerJoin(
+        courseSessions,
+        eq(attendanceRecords.course_session_id, courseSessions.id),
+      )
+      .innerJoin(
+        classCourses,
+        eq(courseSessions.class_course_id, classCourses.id),
+      )
+      .innerJoin(courses, eq(classCourses.course_id, courses.id))
+      .groupBy(
+        students.id,
+        sql<string>`${students.first_name} || ' ' || ${students.last_name}`,
+        classes.name,
+        classCourses.course_id,
+        courses.name,
+      );
   }
 }
