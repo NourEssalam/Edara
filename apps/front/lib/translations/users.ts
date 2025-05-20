@@ -1,3 +1,4 @@
+import { ClassData } from "@/app/(dashboard)/(class-attendance)/classes/classes-list/columns";
 import { UserData } from "@/app/(dashboard)/users-management/users-list/columns";
 import { UserRole, UserStatus } from "@repo/shared-types";
 

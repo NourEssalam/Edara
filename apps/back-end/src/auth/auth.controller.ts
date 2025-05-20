@@ -43,13 +43,13 @@ export class AuthController {
     );
   }
 
-  @Roles(UserRole.SUPER_ADMIN)
-  @Get('profile')
-  profile() {
-    return {
-      message: 'profile page',
-    };
-  }
+  // @Roles(UserRole.SUPER_ADMIN)
+  // @Get('profile')
+  // profile() {
+  //   return {
+  //     message: 'profile page',
+  //   };
+  // }
 
   @Public()
   @UseGuards(RefreshAuthGuard)
@@ -59,12 +59,8 @@ export class AuthController {
     console.log(
       'auth.controle : we hare hitting the refresh token in the server',
     );
-    console.log(req.user.id, req.user.email, req.user.full_name, req.user.role);
-    return this.authService.refreshToken(
-      req.user.id,
-
-      body.browserSessionID,
-    );
+    // console.log(req.user.id, req.user.email, req.user.full_name, req.user.role);
+    return this.authService.refreshToken(req.user.id, body.browserSessionID);
   }
 
   @Public()

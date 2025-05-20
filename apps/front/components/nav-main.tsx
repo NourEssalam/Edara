@@ -1,8 +1,3 @@
-// "use client";
-
-import { buttonVariants } from "@/components/ui/button";
-
-// import { Button } from "@/components/ui/button";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -22,12 +17,7 @@ export function NavMain({ items }: { items: MenuItem[] }) {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton tooltip={item.title} pathname={item.url}>
                 {item.icon && <item.icon />}
-                <Link
-                  href={item.url}
-                  // className={buttonVariants({ variant: "link" })}
-                >
-                  {item.title}
-                </Link>
+                <Link href={item.url}>{item.title}</Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

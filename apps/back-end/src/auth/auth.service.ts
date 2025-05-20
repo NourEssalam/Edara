@@ -158,9 +158,9 @@ export class AuthService {
     refreshToken: string,
     browserSessionID: number,
   ) {
-    // Find the user by ID
     const user = await this.userService.findOneById(userId);
-    const browserSession = await this.db
+
+    const session = await this.db
       .select()
       .from(browserSessions)
       .where(
@@ -169,33 +169,20 @@ export class AuthService {
           eq(browserSessions.id, browserSessionID),
         ),
       );
-    // Check if user exists
-    if (!user || !browserSession[0]) {
-      throw new UnauthorizedException('User or any browser session not found ');
+
+    if (!user || !session[0]) {
+      throw new UnauthorizedException('User or browser session not found');
     }
 
-    //TODO : we need to provide the browser session id
-    // Verify the refresh token
-    try {
-      const refreshTokenMatched = await verify(
-        browserSession[0].hashed_refresh_token ?? '',
-        refreshToken,
-      );
+    const hashedRefreshToken = session[0].hashed_refresh_token ?? '';
+    const isMatch = await verify(hashedRefreshToken, refreshToken);
 
-      // If token doesn't match, throw unauthorized exception
-      if (!refreshTokenMatched) {
-        throw new UnauthorizedException('Invalid Refresh Token');
-      }
-      console.log('refresh token is matched');
-
-      // Return user identifier if token is valid
-      const currentUser = { id: user.id };
-      return currentUser;
-    } catch (error) {
-      // Log any verification errors
-      console.error('Refresh token verification error:', error);
-      // throw new UnauthorizedException('Invalid Refresh Token');
+    if (!isMatch) {
+      console.error('Refresh token hash mismatch');
+      throw new UnauthorizedException('Invalid Refresh Token');
     }
+
+    return { id: user.id };
   }
 
   async getSessionData(userId: number) {
@@ -221,17 +208,17 @@ export class AuthService {
       throw new UnauthorizedException('User session data not found');
     }
     const { email, full_name, role } = userSessionData;
-    const { accessToken, refreshToken } = await this.generateToken(
+    const { accessToken } = await this.generateToken(
       userId,
       role as UserRole,
       browserSessionID,
     );
-    const hashRefreshToken = await hash(refreshToken);
-    await this.userService.updateHashedRefreshToken(
-      userId,
-      hashRefreshToken,
-      browserSessionID,
-    );
+    // const hashRefreshToken = await hash(refreshToken);
+    // await this.userService.updateHashedRefreshToken(
+    //   userId,
+    //   hashRefreshToken,
+    //   browserSessionID,
+    // );
 
     return {
       id: userId,
@@ -239,7 +226,7 @@ export class AuthService {
       full_name,
       role,
       accessToken,
-      refreshToken,
+      // refreshToken,
       browserSessionID,
     };
   }

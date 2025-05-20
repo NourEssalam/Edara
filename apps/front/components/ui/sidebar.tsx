@@ -576,9 +576,13 @@ const SidebarMenuButton = React.forwardRef<
     const Comp = asChild ? Slot : "button";
     const { isMobile, state } = useSidebar();
     const pathnameLink = usePathname();
-    // if (pathname === pathnameLink) {
-    //   isActive = true;
-    // }
+    const sideLink = pathnameLink?.split("/")[1];
+    // React.useEffect(() => {
+    //   console.log("pathnameLink", pathnameLink);
+    //   console.log("sideLink", sideLink);
+    //   console.log("pathname", pathname);
+    // });
+
     const button = (
       <Comp
         ref={ref}
@@ -588,7 +592,7 @@ const SidebarMenuButton = React.forwardRef<
         className={cn(
           sidebarMenuButtonVariants({ variant, size }),
           className,
-          `${pathnameLink === pathname ? "text-amber-700" : ""}`
+          `${sideLink && sideLink.includes(pathname as string) ? "text-amber-700" : ""}`
         )}
         {...props}
       />

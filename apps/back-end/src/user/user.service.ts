@@ -28,6 +28,8 @@ import { EmailService } from 'src/email/email.service';
 import { EditUserProfileDto } from './dto/edit-user-profile-info.dto';
 import { ChangePasswordDto } from './dto/change-password-by-user.dto';
 import { browserSessions } from 'src/drizzle/schema/browser-session.schema';
+import { teachers } from 'src/drizzle/schema/teachers.schema';
+import { UserRole } from '@repo/shared-types';
 
 @Injectable()
 export class UserService {
@@ -96,9 +98,28 @@ export class UserService {
     console.log('user.service : create new user', createUserDto);
     const { password, ...user } = createUserDto;
     const hashPassword = await hash(password);
-    return await this.db
+
+    const userRecord = await this.db
       .insert(users)
-      .values({ ...user, password: hashPassword, status: 'INACTIVE' });
+      .values({
+        ...user,
+        password: hashPassword,
+      })
+      .returning({ insertedId: users.id });
+
+    if (!userRecord || !userRecord[0]) {
+      throw new NotFoundException('User not found');
+    }
+    console.log('userRecord', userRecord[0]);
+
+    // create new teacher if user with teacher role
+    if (user.role === UserRole.TEACHER && userRecord.length > 0) {
+      // insert into teachers table
+      await this.db
+        .insert(teachers)
+        .values({ user_id: userRecord[0].insertedId });
+    }
+    return userRecord;
   }
 
   async updateHashedRefreshToken(

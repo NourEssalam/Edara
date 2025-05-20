@@ -165,7 +165,7 @@
 
 @layer components {
   .container {
-    @apply max-w-[1440px] mx-auto my-0 py-12 px-2 md:px-8  md:py-4;
+    @apply max-w-[1440px]  mx-auto my-0 py-12 px-2 md:px-8  md:py-4;
   }
 }
 
