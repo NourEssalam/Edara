@@ -14,7 +14,4 @@ export class FirstSuperAdminDto {
   @IsString({ message: 'Full name must be a string' })
   @IsNotEmpty({ message: 'Full name is required' })
   full_name!: string;
-
-  // Profile picture is optional, so no validation
-  profile_picture_url?: string;
 }

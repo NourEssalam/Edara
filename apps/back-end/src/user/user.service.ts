@@ -83,14 +83,16 @@ export class UserService {
     return await this.db.$count(users);
   }
 
+  // first super admin must have another account for his employee usage
   async setupRegistration(firstSuperAdminDto: FirstSuperAdminDto) {
     const { password, ...user } = firstSuperAdminDto;
     const hashPassword = await hash(password);
     return await this.db.insert(users).values({
       ...user,
+      cin: '00000000',
+      matricule: '00000000',
       password: hashPassword,
       role: 'SUPER_ADMIN',
-      status: 'ACTIVE',
     });
   }
 
@@ -148,7 +150,7 @@ export class UserService {
 
   async getUserById(userId: number) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { hashed_refresh_token, password, ...rest } = getTableColumns(users);
+    const { password, ...rest } = getTableColumns(users);
     return await this.db
       .select({ ...rest })
       .from(users)
@@ -175,7 +177,7 @@ export class UserService {
 
   async getAllUsersClient() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { hashed_refresh_token, password, ...rest } = getTableColumns(users);
+    const { password, ...rest } = getTableColumns(users);
     return await this.db.select({ ...rest }).from(users);
   }
 
@@ -185,7 +187,7 @@ export class UserService {
       limit = 10,
       search,
       roleFilter,
-      statusFilter,
+
       sortByColumn = 'created_at',
       sortOrder = 'desc',
     } = options;
@@ -206,12 +208,8 @@ export class UserService {
       filters.push(eq(users.role, roleFilter));
     }
 
-    if (statusFilter) {
-      filters.push(eq(users.status, statusFilter));
-    }
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { hashed_refresh_token, password, ...rest } = getTableColumns(users);
+    const { password, ...rest } = getTableColumns(users);
 
     const sq = this.db.$with('sq').as(
       this.db

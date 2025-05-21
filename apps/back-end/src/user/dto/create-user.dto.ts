@@ -6,10 +6,23 @@ import {
   IsOptional,
   IsString,
   MinLength,
+  Length,
+  Matches,
 } from 'class-validator';
-import { UserRole, UserStatus } from '@repo/shared-types'; // Adjust import path as needed
+import { UserRole } from '@repo/shared-types'; // Adjust import path as needed
 
 export class CreateUserDto {
+  @IsString({ message: 'Matricule must be a string' })
+  @IsNotEmpty({ message: 'Matricule is required' })
+  @Length(1, 10, { message: 'Matricule cannot exceed 10 characters' })
+  matricule!: string;
+
+  @IsString({ message: 'CIN must be a string' })
+  @IsNotEmpty({ message: 'CIN is required' })
+  @Length(8, 8, { message: 'CIN must be exactly 8 characters' })
+  @Matches(/^\d+$/, { message: 'CIN must contain only digits' })
+  cin!: string;
+
   @IsEmail({}, { message: 'Please provide a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
   email!: string;
@@ -26,10 +39,6 @@ export class CreateUserDto {
   @IsEnum(UserRole, { message: 'Invalid user role' })
   @IsNotEmpty({ message: 'User role is required' })
   role!: UserRole;
-
-  @IsEnum(UserStatus, { message: 'Invalid user status' })
-  @IsOptional()
-  status?: UserStatus;
 
   @IsString()
   @IsOptional()
