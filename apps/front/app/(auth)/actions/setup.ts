@@ -40,12 +40,15 @@ export async function onSubmitAction(
   }
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { confirmPassword, ...rest } = parsed.data;
+
     const response = await fetch(`${BACKEND_URL}/auth/setup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(parsed.data),
+      body: JSON.stringify(rest),
     });
 
     if (response.ok) {
