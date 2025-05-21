@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
 import { ClassAttendanceModule } from './class_attendance/class_attendance.module';
+import { LeaveRequestsModule } from './leave-requests/leave-requests.module';
+import { WorkCertificationsModule } from './work-certifications/work-certifications.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { ClassAttendanceModule } from './class_attendance/class_attendance.modul
     UserModule,
     EmailModule,
     ClassAttendanceModule,
+    LeaveRequestsModule,
+    WorkCertificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
