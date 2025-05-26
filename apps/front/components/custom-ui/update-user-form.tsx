@@ -56,7 +56,8 @@ export function UpdateUserForm({
       email: user.email,
       role: user.role,
       status: user.status,
-      // profile_picture_url: "",
+      cin: user.cin,
+      matricule: user.matricule,
     },
   });
 
@@ -146,6 +147,32 @@ export function UpdateUserForm({
                 <FormLabel>البريد الإلكتروني</FormLabel>
                 <FormControl>
                   <Input placeholder="أدخل بريدك الإلكتروني" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="cin"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>رقم بطاقة التعريف</FormLabel>
+                <FormControl>
+                  <Input placeholder="أدخل رقم بطاقة التعريف" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="matricule"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>المعرف الوحيد</FormLabel>
+                <FormControl>
+                  <Input placeholder="المعرف الوحيد" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

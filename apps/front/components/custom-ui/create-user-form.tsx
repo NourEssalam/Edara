@@ -50,7 +50,8 @@ export function CreateUserForm({ setOpen }: ChildProps) {
       confirmPassword: "",
       role: UserRole.GENERAL_STAFF,
       status: UserStatus.ACTIVE,
-      // profile_picture_url: "",
+      cin: "",
+      matricule: "",
     },
   });
 
@@ -136,6 +137,32 @@ export function CreateUserForm({ setOpen }: ChildProps) {
                 <FormLabel>البريد الإلكتروني</FormLabel>
                 <FormControl>
                   <Input placeholder="أدخل بريدك الإلكتروني" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="cin"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>رقم بطاقة التعريف</FormLabel>
+                <FormControl>
+                  <Input placeholder="أدخل رقم بطاقة التعريف" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="matricule"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>المعرف الوحيد</FormLabel>
+                <FormControl>
+                  <Input placeholder="المعرف الوحيد" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

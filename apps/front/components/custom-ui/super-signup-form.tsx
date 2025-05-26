@@ -20,6 +20,7 @@ import { X } from "lucide-react";
 import { onSubmitAction } from "@/app/(auth)/actions/setup";
 import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "../ui/scroll-area";
 
 export function SuperSignupForm() {
   const [state, formAction] = useActionState(onSubmitAction, {
@@ -36,6 +37,8 @@ export function SuperSignupForm() {
       email: "",
       password: "",
       confirmPassword: "",
+      matricule: "",
+      cin: "",
     },
   });
 
@@ -64,100 +67,146 @@ export function SuperSignupForm() {
   }, [state?.message, toast]);
 
   return (
-    <div className="flex flex-col gap-2">
-      {isPending && <p>Please wait a moment ...</p>}
-      {state?.message !== "" &&
-        !state.issues &&
-        (state.message.includes("success") ? (
-          <p className="text-green-500 text-xl">
-            تم إنشاء حساب المدير العام بنجاح. يجب عليك تسجيل الدخول الآن
-          </p>
-        ) : (
-          <p className="text-red-500">{state.message}</p>
-        ))}
-      {state?.issues && (
-        <div className="text-red-500">
-          <ul>
-            {state.issues.map((issue) => (
-              <li key={issue} className="flex gap-1">
-                <X fill="red" />
-                {issue}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}{" "}
-      <Form {...form}>
-        <form
-          ref={formRef}
-          action={formAction}
-          onSubmit={form.handleSubmit(() => {
-            startTransition(() => {
-              formAction(new FormData(formRef.current!));
-            });
-            if (state.message.includes("success")) {
-              // form.reset();
-            }
-          })}
-          className="rounded-lg border-amber-500 flex flex-col gap-4 bg-amber-200 p-6"
-        >
-          <FormField
-            control={form.control}
-            name="full_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>الاسم الكامل</FormLabel>
-                <FormControl>
-                  <Input placeholder="أدخل اسمك الكامل" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>البريد الإلكتروني</FormLabel>
-                <FormControl>
-                  <Input placeholder="أدخل بريدك الإلكتروني" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>كلمة المرور</FormLabel>
-                <FormControl>
-                  <Input placeholder="أدخل كلمة المرور" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>تأكيد كلمة المرور</FormLabel>
-                <FormControl>
-                  <Input placeholder="أعد إدخال كلمة المرور" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button disabled={isPending} type="submit">
-            إرسال
-          </Button>
-        </form>
-      </Form>
+    <div className="flex justify-center p-4">
+      <div className="w-full max-w-md flex flex-col gap-4">
+        {isPending && <p>Please wait a moment ...</p>}
+        {state?.message !== "" &&
+          !state.issues &&
+          (state.message.includes("success") ? (
+            <p className="text-green-500 text-xl">
+              تم إنشاء حساب المدير العام بنجاح. يجب عليك تسجيل الدخول الآن
+            </p>
+          ) : (
+            <p className="text-red-500">{state.message}</p>
+          ))}
+        {state?.issues && (
+          <div className="text-red-500">
+            <ul>
+              {state.issues.map((issue) => (
+                <li key={issue} className="flex gap-1">
+                  <X fill="red" />
+                  {issue}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <Form {...form}>
+          <form
+            ref={formRef}
+            action={formAction}
+            onSubmit={form.handleSubmit(() => {
+              startTransition(() => {
+                formAction(new FormData(formRef.current!));
+              });
+            })}
+            className="bg-amber-200 rounded-lg border border-amber-500 p-4 sm:p-6 flex flex-col gap-4"
+          >
+            {/* Scrollable area for inputs */}
+            <ScrollArea
+              dir="rtl"
+              className="max-h-[300px] p-4 bg-amber-50 rounded "
+            >
+              <div className="flex flex-col gap-4 w-[95%]">
+                <FormField
+                  control={form.control}
+                  name="full_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الاسم الكامل</FormLabel>
+                      <FormControl>
+                        <Input placeholder="أدخل اسمك الكامل" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>البريد الإلكتروني</FormLabel>
+                      <FormControl>
+                        <Input placeholder="أدخل بريدك الإلكتروني" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="cin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>رقم بطاقة التعريف</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="أدخل رقم بطاقة التعريف"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="matricule"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>المعرف الوحيد</FormLabel>
+                      <FormControl>
+                        <Input placeholder="المعرف الوحيد" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>كلمة المرور</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="أدخل كلمة المرور"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>تأكيد كلمة المرور</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="أعد إدخال كلمة المرور"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </ScrollArea>
+
+            <Button disabled={isPending} type="submit" className="w-full">
+              إرسال
+            </Button>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }

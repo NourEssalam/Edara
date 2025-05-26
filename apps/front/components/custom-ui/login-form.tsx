@@ -123,7 +123,12 @@ export function LoginForm() {
               <FormItem>
                 <FormLabel>كلمة المرور</FormLabel>
                 <FormControl>
-                  <Input placeholder="أدخل كلمة المرور" {...field} />
+                  <Input
+                    // TODO: add type password
+                    // type="password"
+                    placeholder="أدخل كلمة المرور"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -195,15 +195,15 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="rounded-md border ">
-        <Table>
+        <Table className="min-w-full table-auto">
           <TableHeader className="sticky top-0">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="text-center min-w-16">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="direction-rtl text-right"
+                      className="direction-rtl text-center min-w-[120px]"
                     >
                       {header.isPlaceholder
                         ? null
@@ -218,12 +218,13 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
 
-          <TableBody>
+          <TableBody className="max-w-[500px] ">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="text-center"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

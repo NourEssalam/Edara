@@ -89,8 +89,6 @@ export class UserService {
     const hashPassword = await hash(password);
     return await this.db.insert(users).values({
       ...user,
-      cin: '00000000',
-      matricule: '00000000',
       password: hashPassword,
       role: 'SUPER_ADMIN',
     });

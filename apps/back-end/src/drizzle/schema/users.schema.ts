@@ -41,7 +41,7 @@ export const users = pgTable(
     // 🔑 Authentication fields
     status: UserStatusEnum().default('ACTIVE').notNull(), // Account status
     password: varchar('password', { length: 255 }).notNull(), // Hashed password
-    role: UserRoleEnum().notNull().default('GENERAL_STAFF'), // User role
+    role: UserRoleEnum('role').notNull().default('GENERAL_STAFF'), // User role
     last_login: timestamp('last_login'), // Timestamp for last login
     // 📅 Timestamps
     created_at: timestamp('created_at').defaultNow().notNull(), // Timestamp for account creation
