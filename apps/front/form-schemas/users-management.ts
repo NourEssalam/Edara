@@ -37,6 +37,15 @@ export const createUserSchema = z.object({
     })
     .optional(),
   profile_picture_url: z.string().optional(),
+  matricule: z
+    .string()
+    .length(10, "المعرف يجب أن يحتوي على 10 أحرف بالضبط")
+    .regex(/^[a-zA-Z0-9]+$/, "المعرف يجب أن يحتوي على أرقام أو أحرف فقط"),
+
+  cin: z
+    .string()
+    .length(8, "رقم بطاقة التعريف يجب أن يحتوي على 8 أرقام بالضبط")
+    .regex(/^[0-9]+$/, "رقم بطاقة التعريف يجب أن يحتوي على أرقام فقط"),
 });
 
 export const updateUserSchemaByAdmin = z.object({
@@ -57,6 +66,15 @@ export const updateUserSchemaByAdmin = z.object({
       errorMap: () => ({ message: "حالة المستخدم غير صالحة" }),
     })
     .optional(),
+  matricule: z
+    .string()
+    .length(10, "المعرف يجب أن يحتوي على 10 أحرف بالضبط")
+    .regex(/^[a-zA-Z0-9]+$/, "المعرف يجب أن يحتوي على أرقام أو أحرف فقط"),
+
+  cin: z
+    .string()
+    .length(8, "رقم بطاقة التعريف يجب أن يحتوي على 8 أرقام بالضبط")
+    .regex(/^[0-9]+$/, "رقم بطاقة التعريف يجب أن يحتوي على أرقام فقط"),
   profile_picture_url: z.string().optional(),
 });
 

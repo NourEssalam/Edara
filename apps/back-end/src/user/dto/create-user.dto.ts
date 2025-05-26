@@ -9,7 +9,7 @@ import {
   Length,
   Matches,
 } from 'class-validator';
-import { UserRole } from '@repo/shared-types'; // Adjust import path as needed
+import { UserRole, UserStatus } from '@repo/shared-types'; // Adjust import path as needed
 
 export class CreateUserDto {
   @IsString({ message: 'Matricule must be a string' })
@@ -39,6 +39,10 @@ export class CreateUserDto {
   @IsEnum(UserRole, { message: 'Invalid user role' })
   @IsNotEmpty({ message: 'User role is required' })
   role!: UserRole;
+
+  @IsEnum(UserStatus, { message: 'Invalid user status' })
+  @IsOptional()
+  status?: UserStatus;
 
   @IsString()
   @IsOptional()

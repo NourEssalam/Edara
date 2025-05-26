@@ -25,6 +25,8 @@ export const userDataFieldTranslations: Record<keyof UserData, string> = {
   email: "البريد الإلكتروني",
   full_name: "الاسم الكامل",
   role: "الدور",
+  cin: "رقم بطاقة التعريف",
+  matricule: "المعرف الوحيد",
   status: "الحالة",
   last_login: "آخر تسجيل دخول",
   created_at: "تاريخ الإنشاء",

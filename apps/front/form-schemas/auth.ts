@@ -1,4 +1,3 @@
-// سيتم نقل هذا لاحقًا إلى حزمة مشتركة لإعادة الاستخدام في NestJS و NextJS
 import { z } from "zod";
 
 export const signUpSchema = z.object({
@@ -31,6 +30,16 @@ export const signUpSchema = z.object({
       /[^a-zA-Z0-9]/,
       "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
     ),
+
+  matricule: z
+    .string()
+    .length(10, "المعرف يجب أن يحتوي على 10 أحرف بالضبط")
+    .regex(/^[a-zA-Z0-9]+$/, "المعرف يجب أن يحتوي على أرقام أو أحرف فقط"),
+
+  cin: z
+    .string()
+    .length(8, "رقم بطاقة التعريف يجب أن يحتوي على 8 أرقام بالضبط")
+    .regex(/^[0-9]+$/, "رقم بطاقة التعريف يجب أن يحتوي على أرقام فقط"),
 });
 
 export const loginSchema = z.object({

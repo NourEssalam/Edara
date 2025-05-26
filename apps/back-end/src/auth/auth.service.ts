@@ -35,8 +35,6 @@ export class AuthService {
     private emailService: EmailService,
   ) {}
 
-  TODO;
-
   // this is possibly needs to be in the user service only, I WILL MOVE IT LATER
   async registerNewUser(createUserDto: CreateUserDto) {
     const user = await this.userService.findEmail(createUserDto.email);
