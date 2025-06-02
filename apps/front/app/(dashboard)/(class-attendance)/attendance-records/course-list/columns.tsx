@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { UserRole, UserStatus } from "@repo/shared-types"; // Import the enums
 import { format } from "date-fns";
 import { arTN } from "date-fns/locale";
-import { translateRole, translateStatus } from "@/lib/translations/users";
+import { translateRole, translateStatus } from "@/lib/translations/enums";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

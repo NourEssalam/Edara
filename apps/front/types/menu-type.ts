@@ -3,7 +3,7 @@ import { LucideIcon } from "lucide-react";
 
 export interface MenuItem {
   title: string;
-  url: string;
+  url?: string;
   icon?: LucideIcon;
   isActive?: boolean;
   roles?: UserRole[]; // optional: if not provided, visible to all

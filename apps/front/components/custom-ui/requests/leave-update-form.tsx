@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { createLeaveRequestSchema } from "@/form-schemas/leave-wc";
+import { updateLeaveRequestSchema } from "@/form-schemas/leave-wc";
 import { arTN } from "date-fns/locale";
 
 import { CalendarIcon, X } from "lucide-react";
@@ -35,41 +35,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LeaveType, UserRole } from "@repo/shared-types";
-import { createLeaveRequest } from "@/app/(dashboard)/(leave-management)/actions/createLeaveRequest";
+import { LeaveType } from "@repo/shared-types";
+import { LeaveRequestWithPeriods } from "@/app/(dashboard)/(leave-management)/leave-request-list/columns";
+import { updateLeaveRequest } from "@/app/(dashboard)/(leave-management)/actions/updateLeaveRequest";
 import { redirect } from "next/navigation";
+import { PopoverClose } from "@radix-ui/react-popover";
+interface ChildProps {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-export function CreateLeaveRequestForm({
-  userId,
-  userRole,
-}: {
-  userId: string;
-  userRole: UserRole;
-}) {
-  const [state, formAction] = useActionState(createLeaveRequest, {
+export function UpdateLeaveRequestForm({
+  data,
+  setOpen,
+  setDropdownOpen,
+}: { data: LeaveRequestWithPeriods } & ChildProps) {
+  const [state, formAction] = useActionState(updateLeaveRequest, {
     message: "",
   });
 
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
+  const user_id = String(data.userId);
 
-  const form = useForm<z.infer<typeof createLeaveRequestSchema>>({
-    resolver: zodResolver(createLeaveRequestSchema),
+  const form = useForm<z.infer<typeof updateLeaveRequestSchema>>({
+    resolver: zodResolver(updateLeaveRequestSchema),
     defaultValues: {
-      userId: userId,
-      leaveType: "", // or a valid enum value from LeaveType
-      matricule: "",
-      name: "",
-      grade: "",
-      jobPlan: "", // only used when userRole === SUPER_ADMIN
-      benefitText: "",
-      durationFrom: new Date(),
-      durationTo: new Date(),
-      leaveYear: 0, // or 0 if you want empty number
-      leaveAddress: "",
-      postalCode: "",
-      phone: "",
+      requestId: data.id,
+      userId: user_id,
+      leaveType: data.leaveType, // or a valid enum value from LeaveType
+      matricule: data.matricule,
+      name: data.name,
+      grade: data.grade,
+      jobPlan: data.jobPlan || "", // only used when userRole === SUPER_ADMIN
+      benefitText: data.benefitText,
+      durationFrom: new Date(data.durationFrom),
+      durationTo: new Date(data.durationTo),
+      leaveYear: data.leaveYear, // or 0 if you want empty number
+      leaveAddress: data.leaveAddress,
+      postalCode: data.postalCode,
+      phone: data.phone,
+      attachedDocs: data.attachedDocs || "",
     },
   });
 
@@ -80,10 +87,12 @@ export function CreateLeaveRequestForm({
 
       if (state.message.includes("success")) {
         toast({
-          title: "تم إرسال طلب الإجازة بنجاح",
+          title: "تم تحديث طلب الإجازة بنجاح",
           variant: "success",
         });
         const timer = setTimeout(() => {
+          setOpen(false);
+          setDropdownOpen(false);
           redirect("/leave-request-list");
         }, 1000);
         return () => clearTimeout(timer);
@@ -94,7 +103,7 @@ export function CreateLeaveRequestForm({
         });
       }
     }
-  }, [state.message, state.timestamp, toast]);
+  }, [state.message, state.timestamp, toast, setOpen, setDropdownOpen]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -103,7 +112,7 @@ export function CreateLeaveRequestForm({
       {state?.message !== "" &&
         !state.issues &&
         (state.message.includes("success") ? (
-          <p className="text-green-500 text-xl">تم إرسال طلب الإجازة بنجاح</p>
+          <p className="text-green-500 text-xl">تم تحديث طلب العطلة بنجاح</p>
         ) : (
           <p className="text-red-500">{state.message}</p>
         ))}
@@ -126,14 +135,15 @@ export function CreateLeaveRequestForm({
           ref={formRef}
           action={formAction}
           onSubmit={form.handleSubmit(() => {
-            // alert(form.getValues());
             startTransition(() => {
               formAction(new FormData(formRef.current!));
             });
           })}
           className="rounded-lg grid grid-cols-1 md:grid-cols-2 gap-4 p-6"
         >
-          <input type="hidden" name="userId" value={userId} />
+          <input type="hidden" name="userId" value={user_id} />
+          <input type="hidden" name="requestId" value={data.id} />
+          <input type="hidden" name="jobPlan" value={data.jobPlan || ""} />
 
           <FormField
             control={form.control}
@@ -207,8 +217,8 @@ export function CreateLeaveRequestForm({
             )}
           />
           {/* Job Plan */}
-          {userRole === UserRole.SUPER_ADMIN ? (
-            <FormField
+
+          {/* <FormField
               control={form.control}
               name="jobPlan"
               render={({ field }) => (
@@ -224,7 +234,7 @@ export function CreateLeaveRequestForm({
           ) : (
             // Register jobPlan as empty string for others so it's present in form data
             <input type="hidden" {...form.register("jobPlan")} value="" />
-          )}
+          )} */}
 
           {/* benefitText */}
           <FormField
@@ -281,7 +291,7 @@ export function CreateLeaveRequestForm({
                 <input
                   type="hidden"
                   name={field.name}
-                  value={field.value ? field.value.toISOString() : ""}
+                  value={field.value ? new Date(field.value).toISOString() : ""}
                 />
 
                 <FormMessage />
@@ -328,7 +338,7 @@ export function CreateLeaveRequestForm({
                 <input
                   type="hidden"
                   name={field.name}
-                  value={field.value ? field.value.toISOString() : ""}
+                  value={field.value ? new Date(field.value).toISOString() : ""}
                 />
 
                 <FormMessage />
@@ -406,7 +416,7 @@ export function CreateLeaveRequestForm({
             )}
           />
           <Button disabled={isPending} type="submit" className="md:col-span-2">
-            إرسال الطلب
+            تحديث الطلب
           </Button>
         </form>
       </Form>

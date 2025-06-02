@@ -1,6 +1,6 @@
 import { ClassData } from "@/app/(dashboard)/(class-attendance)/classes/classes-list/columns";
 import { UserData } from "@/app/(dashboard)/users-management/users-list/columns";
-import { UserRole, UserStatus } from "@repo/shared-types";
+import { RequestStatus, UserRole, UserStatus } from "@repo/shared-types";
 
 // Role translations
 export const roleTranslations: Record<UserRole, string> = {
@@ -18,6 +18,12 @@ export const statusTranslations: Record<UserStatus, string> = {
   ACTIVE: "نشط",
   INACTIVE: "غير نشط",
   SUSPENDED: "معلق",
+};
+export const requestStatusTranslations: Record<RequestStatus, string> = {
+  PENDING: "قيد الانتظار",
+  APPROVED: "موافق عليه",
+  REJECTED: "مرفوض",
+  CANCELED: "ملغي",
 };
 
 export const userDataFieldTranslations: Record<keyof UserData, string> = {
@@ -53,4 +59,8 @@ export function translateStatus(status: UserStatus): string {
 
 export function translateUserData(columnId: keyof UserData): string {
   return translate(columnId, userDataFieldTranslations);
+}
+
+export function translateRequestStatus(requestStatus: RequestStatus): string {
+  return translate(requestStatus, requestStatusTranslations);
 }

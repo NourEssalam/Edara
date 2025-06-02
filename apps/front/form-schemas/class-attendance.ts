@@ -137,15 +137,6 @@ export const CourseSessionSchema = z.object({
     z.date({
       required_error: "يرجى اختيار تاريخ وتوقيت الحصة.",
     })
-    // .refine(
-    // // (date) => {
-    // //   const hours = date.getHours();
-    // //   return hours >= 8 && hours < 18; // 18 = 6pm
-    // // },
-    // {
-    //   message: "يجب أن يكون توقيت الحصة بين الساعة 8 صباحًا و6 مساءً.",
-    // }
-    // )
   ),
 
   topic: z.preprocess(

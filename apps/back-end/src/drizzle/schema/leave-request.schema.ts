@@ -18,34 +18,31 @@ export const leaveTypeEnum = pgEnum(
 );
 
 export const statusEnum = pgEnum(
-  'status',
+  'request_status',
   Object.values(RequestStatus) as [string, ...string[]],
 );
 
 // 2. Define schema
 export const leaveRequests = pgTable('leave_requests', {
   id: uuid('id').primaryKey().defaultRandom(),
-
-  userId: uuid('user_id')
+  userId: integer('user_id')
     .notNull()
     .references(() => users.id),
   leaveType: leaveTypeEnum('leave_type').notNull(),
   matricule: varchar('matricule', { length: 10 }).notNull(),
-  name: varchar('name', { length: 100 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
 
-  grade: varchar('grade', { length: 50 }).notNull(),
-  jobPlan: varchar('job_plan', { length: 100 }).notNull(), // only for super admin
-  benefitText: text('benefit_text'),
+  grade: varchar('grade', { length: 255 }).notNull(),
+  jobPlan: varchar('job_plan', { length: 255 }), // only for super admin
+  benefitText: text('benefit_text').notNull(),
   durationFrom: date('duration_from').notNull(),
   durationTo: date('duration_to').notNull(),
   leaveYear: integer('leave_year').notNull(),
-  leaveAddress: text('leave_address'),
-  postalCode: varchar('postal_code', { length: 10 }),
-  phone: varchar('phone', { length: 20 }),
+  leaveAddress: text('leave_address').notNull(),
+  postalCode: varchar('postal_code', { length: 5 }).notNull(),
+  phone: varchar('phone', { length: 8 }).notNull(),
   attachedDocs: text('attached_docs'),
-  status: statusEnum('status').default('PENDING'),
-  // adminComment: text('admin_comment'),
-
+  requestStatus: statusEnum('request_status').default('PENDING'),
   createdAt: timestamp('created_at').defaultNow(),
 });
 

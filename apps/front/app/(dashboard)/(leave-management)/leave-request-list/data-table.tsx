@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserData } from "./columns";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -103,7 +102,7 @@ export function DataTable<TData, TValue>({
         >
           خيارات البحث
         </Button>
-        <DropdownMenu>
+        {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
               الأعمدة المعروضة
@@ -123,12 +122,12 @@ export function DataTable<TData, TValue>({
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {translateUserData(column.id as keyof UserData)}
+                    {column.id}
                   </DropdownMenuCheckboxItem>
                 );
               })}
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu> */}
       </div>
       <div
         className={`${filterOpen ? "block" : "hidden"} grid grid-cols-2 gap-2 py-4 rounded max-w-2xl `}
@@ -142,56 +141,6 @@ export function DataTable<TData, TValue>({
           placeholder="بحث..."
           className="order-3 col-span-full md:col-span-1"
         />
-
-        <Select
-          dir="rtl"
-          onValueChange={(value) =>
-            value === "all"
-              ? table.getColumn("role")?.setFilterValue(undefined)
-              : table.getColumn("role")?.setFilterValue(value)
-          }
-          value={(table.getColumn("role")?.getFilterValue() as string) ?? ""}
-          defaultValue="all"
-        >
-          <SelectTrigger className="">
-            <SelectValue className="text-gray-900" placeholder="الصلاحيات" />
-          </SelectTrigger>
-          <SelectContent>
-            {["all", ...(Object.values(UserRole) as [string, ...string[]])].map(
-              (role, i) => (
-                <SelectItem key={i} value={`${role}`}>
-                  {role === "all" ? "الجميع" : translateRole(role as UserRole)}
-                </SelectItem>
-              )
-            )}
-          </SelectContent>
-        </Select>
-        <Select
-          dir="rtl"
-          onValueChange={(value) =>
-            value === "all"
-              ? table.getColumn("status")?.setFilterValue(undefined)
-              : table.getColumn("status")?.setFilterValue(value)
-          }
-          value={(table.getColumn("status")?.getFilterValue() as string) ?? ""}
-          defaultValue="all"
-        >
-          <SelectTrigger className="">
-            <SelectValue className="text-gray-900" placeholder="الحالة" />
-          </SelectTrigger>
-          <SelectContent>
-            {[
-              "all",
-              ...(Object.values(UserStatus) as [string, ...string[]]),
-            ].map((status, i) => (
-              <SelectItem key={i} value={`${status}`}>
-                {status === "all"
-                  ? "الجميع"
-                  : translateStatus(status as UserStatus)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="rounded-md border ">
@@ -203,7 +152,11 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className="direction-rtl text-center min-w-[120px]"
+                      className={`direction-rtl text-center ${
+                        header.id === "إجراءات"
+                          ? "min-w-[40px] w-20"
+                          : "min-w-[120px]"
+                      }`}
                     >
                       {header.isPlaceholder
                         ? null

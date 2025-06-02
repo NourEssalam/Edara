@@ -142,7 +142,7 @@ export function CreateCourseSessionForm({
                 <FormLabel>الموضوع</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Tell us a little bit about yourself"
+                    // placeholder="Tell us a little bit about yourself"
                     className="resize-none"
                     {...field}
                   />

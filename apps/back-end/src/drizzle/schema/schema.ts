@@ -9,3 +9,4 @@ export * from './reset-password.schema';
 export * from './browser-session.schema';
 export * from './course-session.schema';
 export * from './attendance-record.schema';
+export * from './leave-request.schema';

@@ -16,7 +16,7 @@ export default function MainPage() {
       <div className="flex justify-center ">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {/* Leave Request Card */}
-          <Link href="/leave-request-form" className="block">
+          <Link href="/leave-request" className="block">
             <Card className="h-full transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer border-2 hover:border-primary/20">
               <CardHeader className="text-center pb-4">
                 <div className="mx-auto mb-4 p-3 bg-blue-100 rounded-full w-fit">
@@ -40,7 +40,7 @@ export default function MainPage() {
           </Link>
 
           {/* Work Certification Request Card */}
-          <Link href="/certification-request-form" className="block">
+          <Link href="/work-certification-request" className="block">
             <Card className="h-full transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer border-2 hover:border-primary/20">
               <CardHeader className="text-center pb-4">
                 <div className="mx-auto mb-4 p-3 bg-green-100 rounded-full w-fit">

@@ -12,6 +12,7 @@ import { passwordResetTokens } from './reset-password.schema';
 import { browserSessions } from './browser-session.schema';
 import { teachers } from './teachers.schema';
 import { UserRole, UserStatus } from '@repo/shared-types';
+import { leaveRequests } from './leave-request.schema';
 
 // Define the user roles as an enum
 export const UserRoleEnum = pgEnum(
@@ -61,4 +62,5 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     fields: [users.id],
     references: [teachers.user_id],
   }),
+  leaveRequests: many(leaveRequests),
 }));
