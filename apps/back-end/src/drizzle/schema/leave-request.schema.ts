@@ -27,7 +27,7 @@ export const leaveRequests = pgTable('leave_requests', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: integer('user_id')
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: 'cascade' }),
   leaveType: leaveTypeEnum('leave_type').notNull(),
   matricule: varchar('matricule', { length: 10 }).notNull(),
   name: varchar('name', { length: 255 }).notNull(),

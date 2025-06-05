@@ -3,7 +3,6 @@ import {
   pgEnum,
   pgTable,
   serial,
-  text,
   timestamp,
 } from 'drizzle-orm/pg-core';
 import { courseSessions } from './course-session.schema';

@@ -1,13 +1,13 @@
 import Container from "@/components/custom-ui/common/Container";
-import { CreateUserDialog } from "@/components/custom-ui/create-user-dialog";
+// import { CreateUserDialog } from "@/components/custom-ui/create-user-dialog";
 import { authFetch } from "@/lib/authFetch";
 import { BACKEND_URL } from "@/lib/constants";
-import { getSession } from "@/lib/session";
+// import { getSession } from "@/lib/session";
 import { DataTable } from "./course-list/data-table";
 import { columns } from "./course-list/columns";
 
 export default async function Page() {
-  const session = await getSession();
+  // const session = await getSession();
   const getAllUsers = await authFetch(
     `${BACKEND_URL}/class-attendance/attendace-records`,
     {
