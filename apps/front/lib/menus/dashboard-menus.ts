@@ -76,8 +76,8 @@ export const navMainMenu: MenuItem[] = [
   },
   // leave requests
   {
-    title: "سجلات بطاقات العطل", // "Leave Requests Management"
-    url: "/employees-leave-requests",
+    title: "سجلات الموظفين", // "Leave Requests Management"
+    url: "/employee-leave-requests",
     icon: CalendarClock,
     roles: [UserRole.LEAVE_ADMIN],
   },

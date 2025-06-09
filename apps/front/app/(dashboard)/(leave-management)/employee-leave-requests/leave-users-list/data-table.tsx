@@ -19,13 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserData } from "./columns";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import {
   Table,
@@ -38,35 +31,23 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UserRole, UserStatus } from "@repo/shared-types";
-import {
-  translateRole,
-  translateStatus,
-  translateUserData,
-} from "@/lib/translations/enums";
-// type Meta = {
-//   total: number;
-//   page: number;
-//   limit: number;
-//   totalPages: number;
-//   hasNextPage: boolean;
-//   hasPreviousPage: boolean;
-// };
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  // meta: Meta;
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [filterOpen, setFilterOpen] = useState(false);
+  // const [filterOpen, setFilterOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [globalFilter, setGlobalFilter] = useState<any>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -92,107 +73,30 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          onClick={() => setFilterOpen(!filterOpen)}
-          className="self-start bg-amber-800 text-amber-50 hover:bg-amber-900 dark:bg-amber-900
-         dark:text-amber-50 dark:hover:bg-amber-800"
-        >
-          خيارات البحث
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              الأعمدة المعروضة
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {translateUserData(column.id as keyof UserData)}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div
-        className={`${filterOpen ? "block" : "hidden"} grid grid-cols-2 gap-2 py-4 rounded max-w-2xl `}
-      >
-        <Input
-          value={searchValue}
-          onChange={(e) => {
-            setSearchValue(e.target.value);
-            table.setGlobalFilter(String(e.target.value));
-          }}
-          placeholder="بحث..."
-          className="order-3 col-span-full md:col-span-1"
-        />
+  // Handle row click
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleRowClick = (row: any) => {
+    // Prevent navigation when clicking on action buttons
+    if (onRowClick) {
+      onRowClick(row.original);
+    } else {
+      // Default navigation behavior - navigate to dynamic route based on ID
+      // router.push(`/classes/${row.original.id}`);
+      window.open(`/employee-leave-requests/${row.original.id}`, "_blank");
+    }
+  };
 
-        <Select
-          dir="rtl"
-          onValueChange={(value) =>
-            value === "all"
-              ? table.getColumn("role")?.setFilterValue(undefined)
-              : table.getColumn("role")?.setFilterValue(value)
-          }
-          value={(table.getColumn("role")?.getFilterValue() as string) ?? ""}
-          defaultValue="all"
-        >
-          <SelectTrigger className="">
-            <SelectValue className="text-gray-900" placeholder="الصلاحيات" />
-          </SelectTrigger>
-          <SelectContent>
-            {["all", ...(Object.values(UserRole) as [string, ...string[]])].map(
-              (role, i) => (
-                <SelectItem key={i} value={`${role}`}>
-                  {role === "all" ? "الجميع" : translateRole(role as UserRole)}
-                </SelectItem>
-              )
-            )}
-          </SelectContent>
-        </Select>
-        <Select
-          dir="rtl"
-          onValueChange={(value) =>
-            value === "all"
-              ? table.getColumn("status")?.setFilterValue(undefined)
-              : table.getColumn("status")?.setFilterValue(value)
-          }
-          value={(table.getColumn("status")?.getFilterValue() as string) ?? ""}
-          defaultValue="all"
-        >
-          <SelectTrigger className="">
-            <SelectValue className="text-gray-900" placeholder="الحالة" />
-          </SelectTrigger>
-          <SelectContent>
-            {[
-              "all",
-              ...(Object.values(UserStatus) as [string, ...string[]]),
-            ].map((status, i) => (
-              <SelectItem key={i} value={`${status}`}>
-                {status === "all"
-                  ? "الجميع"
-                  : translateStatus(status as UserStatus)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+  return (
+    <>
+      <Input
+        value={searchValue}
+        onChange={(e) => {
+          setSearchValue(e.target.value);
+          table.setGlobalFilter(String(e.target.value));
+        }}
+        placeholder="بحث..."
+        className="w-1/3 m-4"
+      />
 
       <div className="rounded-md border ">
         <Table className="min-w-full table-auto">
@@ -228,7 +132,17 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="text-center"
+                  onClick={(e) => {
+                    // Only navigate if the click wasn't on an action button
+                    if (
+                      !(e.target as HTMLElement).closest(
+                        ".dropdown-menu-trigger"
+                      )
+                    ) {
+                      handleRowClick(row);
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-muted text-center"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -292,6 +206,6 @@ export function DataTable<TData, TValue>({
           التالي
         </Button>
       </div>
-    </div>
+    </>
   );
 }

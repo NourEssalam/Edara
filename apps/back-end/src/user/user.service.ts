@@ -333,4 +333,30 @@ export class UserService {
       .set({ password: hashedPassword })
       .where(eq(users.id, userId));
   }
+
+  // for requests
+  async getAllUsers() {
+    return await this.db
+      .select({
+        id: users.id,
+        full_name: users.full_name,
+        email: users.email,
+        cin: users.cin,
+        matricule: users.matricule,
+      })
+      .from(users);
+  }
+
+  async getUserOfRequest(userId: number) {
+    return await this.db
+      .select({
+        id: users.id,
+        full_name: users.full_name,
+        email: users.email,
+        cin: users.cin,
+        matricule: users.matricule,
+      })
+      .from(users)
+      .where(eq(users.id, userId));
+  }
 }

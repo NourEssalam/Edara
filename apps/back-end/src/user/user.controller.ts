@@ -136,4 +136,18 @@ export class UserController {
       changePasswordDto,
     );
   }
+
+  // for requests
+  @Roles(UserRole.WORK_CERTIFICATION_ADMIN, UserRole.LEAVE_ADMIN)
+  @Get('get-all-users')
+  async getAllUsers() {
+    return await this.userService.getAllUsers();
+  }
+
+  @Roles(UserRole.WORK_CERTIFICATION_ADMIN, UserRole.LEAVE_ADMIN)
+  @Get('user-of-request/:id')
+  async getUserOfRequest(@Param('id') id: string) {
+    const userId = parseInt(id, 10); // Convert to number
+    return await this.userService.getUserOfRequest(userId);
+  }
 }

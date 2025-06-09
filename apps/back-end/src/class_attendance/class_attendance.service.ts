@@ -554,7 +554,7 @@ export class ClassAttendanceService {
 
   // create course session
   async createCourseSession(courseSessionDto: CreateCourseSessionDto) {
-    const { class_id, course_id, topic, date } = courseSessionDto;
+    const { class_id, course_id, topic } = courseSessionDto;
 
     // Find the corresponding class-course relation
     const cc = await this.db.query.classCourses.findFirst({
@@ -575,7 +575,6 @@ export class ClassAttendanceService {
       .values({
         class_course_id: cc.id,
         topic,
-        date,
       })
       .returning({ id: courseSessions.id }); // ✅ correct syntax
 
