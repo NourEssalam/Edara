@@ -1,11 +1,4 @@
-import {
-  pgTable,
-  serial,
-  timestamp,
-  integer,
-  date,
-  text,
-} from 'drizzle-orm/pg-core';
+import { pgTable, serial, timestamp, integer, text } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm/relations';
 import { classCourses } from './courses-of-class.schema';
 import { attendanceRecords } from './attendance-record.schema';
@@ -15,7 +8,7 @@ export const courseSessions = pgTable('course_sessions', {
   class_course_id: integer('class_course_id')
     .references(() => classCourses.id, { onDelete: 'cascade' })
     .notNull(),
-  date: date('date').notNull(),
+  // date: date('date').notNull(),
   topic: text('topic'),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),

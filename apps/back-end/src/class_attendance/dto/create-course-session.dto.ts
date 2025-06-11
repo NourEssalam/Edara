@@ -1,14 +1,6 @@
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCourseSessionDto {
-  @IsDateString()
-  date!: string;
-
   @IsString()
   @IsNotEmpty()
   @IsOptional()

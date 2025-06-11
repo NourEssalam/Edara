@@ -1,8 +1,249 @@
-import { Injectable } from '@nestjs/common';
-
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
+import { DRIZZLE } from 'src/drizzle/drizzle.module';
+import type { Database } from 'src/drizzle/types/drizzle';
+import { leaveRequests } from 'src/drizzle/schema/leave-request.schema';
+import { users } from 'src/drizzle/schema/users.schema';
+import { eq, and } from 'drizzle-orm';
+import { RequestStatus } from '@repo/shared-types';
+import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
+import { requestRejections } from 'src/drizzle/schema/request-rejections.schema';
 @Injectable()
 export class LeaveRequestsService {
-  getHello(): string {
-    return 'Hello World!';
+  constructor(@Inject(DRIZZLE) private readonly db: Database) {}
+
+  // create leave request
+  async create(createLeaveRequestDto: CreateLeaveRequestDto) {
+    // find matricule of the user
+    const matricule = createLeaveRequestDto.matricule;
+    const user = await this.db
+      .select({ matricule: users.matricule })
+      .from(users)
+      .where(
+        and(
+          eq(users.matricule, matricule),
+          eq(users.id, createLeaveRequestDto.userId),
+        ),
+      );
+    if (!user) {
+      throw new NotFoundException('المستخدم غير موجود');
+    }
+
+    if (!user[0]?.matricule) {
+      throw new NotFoundException('المُعَرِّف الوحيد خاطئ أو غير موجود');
+    }
+
+    // already have a pending leave request
+    const leaveRequest = await this.db
+      .select()
+      .from(leaveRequests)
+      .where(
+        and(
+          eq(leaveRequests.matricule, createLeaveRequestDto.matricule),
+          eq(leaveRequests.requestStatus, 'PENDING'),
+        ),
+      );
+    if (leaveRequest.length > 0) {
+      throw new NotFoundException('لديك بالفعل طلب عطلة معلق');
+    }
+
+    return await this.db.insert(leaveRequests).values(createLeaveRequestDto);
+  }
+
+  // get all leave requests
+  async getAllLeaveRequests(userId: number) {
+    const leaveRequestsData = await this.db
+      .select()
+      .from(leaveRequests)
+      .where(eq(leaveRequests.userId, userId));
+
+    const today = new Date();
+
+    const normalize = (date: Date) =>
+      new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    const todayDate = normalize(today);
+
+    const formattedResults = leaveRequestsData.map((req) => {
+      const from = normalize(new Date(req.durationFrom));
+      const to = normalize(new Date(req.durationTo));
+
+      const totalPeriod =
+        Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+      if (req.requestStatus !== 'APPROVED') {
+        return {
+          ...req,
+          totalPeriod,
+          periodPassed: null,
+          periodLeft: null,
+        };
+      }
+
+      let periodPassed = 0;
+      let periodLeft = 0;
+
+      if (todayDate >= from && todayDate <= to) {
+        // During leave
+        periodPassed =
+          Math.floor(
+            (todayDate.getTime() - from.getTime()) / (1000 * 60 * 60 * 24),
+          ) + 1;
+        periodLeft = totalPeriod - periodPassed;
+      } else if (todayDate < from) {
+        // Future leave
+        periodPassed = 0;
+        periodLeft = totalPeriod;
+      } else {
+        // Past leave
+        periodPassed = totalPeriod;
+        periodLeft = 0;
+      }
+
+      return {
+        ...req,
+        totalPeriod,
+        periodPassed,
+        periodLeft,
+      };
+    });
+
+    return formattedResults;
+  }
+
+  // cancel leave request
+
+  async cancelLeaveRequest(leaveRequestId: string, userId: number) {
+    try {
+      console.log('leaveRequestId', leaveRequestId);
+      console.log('userId', userId);
+      const result = await this.db
+        .update(leaveRequests)
+        .set({ requestStatus: RequestStatus.CANCELED })
+        .where(
+          and(
+            eq(leaveRequests.userId, userId),
+            eq(leaveRequests.id, leaveRequestId),
+          ),
+        );
+
+      // result could be number of rows affected or the updated record depending on ORM
+      // Let's assume it's the number of affected rows
+      if (!result) {
+        throw new NotFoundException('طلب الإجازة غير موجود');
+      }
+
+      return result;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error: any) {
+      // You can add more sophisticated error logging here if needed
+      console.log(error);
+      throw new InternalServerErrorException('حدث خطأ أثناء إلغاء طلب الإجازة');
+    }
+  }
+  // update leave request
+
+  async updateLeaveRequest(body: UpdateLeaveRequestDto) {
+    const { userId, requestId, ...rest } = body;
+    console.log('userId', userId);
+    console.log('requestId', requestId);
+    try {
+      const result = await this.db
+        .update(leaveRequests)
+        .set({ ...rest })
+        .where(
+          and(
+            eq(leaveRequests.userId, body.userId),
+            eq(leaveRequests.id, body.requestId),
+          ),
+        );
+
+      // result could be number of rows affected or the updated record depending on ORM
+      // Let's assume it's the number of affected rows
+      if (!result) {
+        throw new NotFoundException('طلب الإجازة غير موجود');
+      }
+
+      return result;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error: any) {
+      // You can add more sophisticated error logging here if needed
+      console.log(error);
+      throw new InternalServerErrorException('حدث خطاء في تحديث طلب الإجازة');
+    }
+  }
+
+  // all pending requests
+  async getAllPendingLeaveRequests() {
+    const pendingRequest = await this.db
+      .select()
+      .from(leaveRequests)
+      .where(eq(leaveRequests.requestStatus, RequestStatus.PENDING));
+
+    // get the user real name and add it to the pending request
+    const pendingRequestWithUser = await Promise.all(
+      pendingRequest.map(async (req) => {
+        const user = await this.db
+          .select({ name: users.full_name })
+          .from(users)
+          .where(eq(users.id, req.userId));
+        return {
+          ...req,
+          userName: user[0]?.name,
+        };
+      }),
+    );
+    return pendingRequestWithUser;
+  }
+
+  async getLeaveRequestDetails(requestId: string, userId: number) {
+    const leaveRequest = await this.db
+      .select()
+      .from(leaveRequests)
+      .where(
+        and(eq(leaveRequests.userId, userId), eq(leaveRequests.id, requestId)),
+      );
+    if (!leaveRequest) {
+      throw new NotFoundException('طلب الإجازة غير موجود');
+    }
+    return leaveRequest[0];
+  }
+
+  // refuse leave request
+  async refuseLeaveRequest(refuseLeaveRequestDto: {
+    requestId: string;
+    userId: number;
+    adminId: number;
+    reason: string;
+  }) {
+    const { requestId, userId, adminId, reason } = refuseLeaveRequestDto;
+    const leaveRequest = await this.db
+      .select()
+      .from(leaveRequests)
+      .where(
+        and(eq(leaveRequests.userId, userId), eq(leaveRequests.id, requestId)),
+      );
+    if (!leaveRequest) {
+      throw new NotFoundException('طلب الإجازة غير موجود');
+    }
+    // update leave request status
+    await this.db
+      .update(leaveRequests)
+      .set({ requestStatus: RequestStatus.REJECTED })
+      .where(
+        and(eq(leaveRequests.userId, userId), eq(leaveRequests.id, requestId)),
+      );
+    const result = await this.db.insert(requestRejections).values({
+      requestId,
+      userId,
+      adminId,
+      reason,
+    });
+    return result;
   }
 }

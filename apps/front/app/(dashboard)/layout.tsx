@@ -7,6 +7,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import Loading from "../loading";
+import { Suspense } from "react";
 // import { BACKEND_URL } from "@/lib/constants";
 // import GetOut from "@/components/custom-ui/getOut";
 // import data from "./data.json";
@@ -43,7 +45,7 @@ export default async function DashboardLayout({
                     </div>
                     <DataTable data={data} /> */}
 
-                  {children}
+                  <Suspense fallback={<Loading />}>{children}</Suspense>
                 </div>
               </div>
             </div>

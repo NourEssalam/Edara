@@ -23,16 +23,16 @@ export function CreateCourseSessionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Create course session</Button>
+        <Button variant="outline">إنشاء الحصة الأن</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] p-8 ">
         <DialogHeader>
-          <DialogTitle>Create course session</DialogTitle>
+          <DialogTitle>إنشاء حصة درس</DialogTitle>
           <DialogDescription>
-            After creating a course session, you will be redirected to the
-            course session page with students list
+            بعد إنشاء حصة الدرس، سيتم تحويلك إلى صفحة الحصة مع قائمة الطلبة
           </DialogDescription>
         </DialogHeader>
+
         <CreateCourseSessionForm
           setOpen={setOpen}
           classId={classId}

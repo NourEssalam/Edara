@@ -274,6 +274,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      libphonenumber-js:
+        specifier: ^1.12.8
+        version: 1.12.8
       lucide-react:
         specifier: ^0.475.0
         version: 0.475.0(react@19.0.0)
@@ -5054,6 +5057,9 @@ packages:
 
   libphonenumber-js@1.12.6:
     resolution: {integrity: sha512-PJiS4ETaUfCOFLpmtKzAbqZQjCCKVu2OhTV4SVNNE7c2nu/dACvtCqj4L0i/KWNnIgRv7yrILvBj5Lonv5Ncxw==}
+
+  libphonenumber-js@1.12.8:
+    resolution: {integrity: sha512-f1KakiQJa9tdc7w1phC2ST+DyxWimy9c3g3yeF+84QtEanJr2K77wAmBPP22riU05xldniHsvXuflnLZ4oysqA==}
 
   lilconfig@3.1.3:
     resolution: {integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==}
@@ -11664,6 +11670,8 @@ snapshots:
       type-check: 0.4.0
 
   libphonenumber-js@1.12.6: {}
+
+  libphonenumber-js@1.12.8: {}
 
   lilconfig@3.1.3: {}
 

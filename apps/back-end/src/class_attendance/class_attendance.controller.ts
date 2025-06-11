@@ -245,7 +245,7 @@ export class ClassAttendanceController {
   /********************* */
   /* ADMIN REPORTS */
   /********************* */
-  @Public()
+  @Roles(UserRole.CLASS_ATTENDANCE_ADMIN)
   @Get('attendace-records')
   async getAllReports() {
     return this.classAttendanceService.getAllStudentsAttendanceRecords();

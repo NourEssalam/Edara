@@ -42,7 +42,7 @@ import {
   translateRole,
   translateStatus,
   translateUserData,
-} from "@/lib/translations/users";
+} from "@/lib/translations/enums";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

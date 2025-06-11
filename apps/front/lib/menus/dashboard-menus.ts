@@ -15,6 +15,11 @@ import {
   SettingsIcon,
   UsersIcon,
   Disc2Icon,
+  CoffeeIcon,
+  User,
+  Lock,
+  CalendarClock,
+  HourglassIcon,
 } from "lucide-react";
 
 import { UserRole } from "@repo/shared-types";
@@ -27,12 +32,18 @@ export const navMainMenu: MenuItem[] = [
     icon: UsersIcon,
     roles: [UserRole.SUPER_ADMIN],
   },
+  // {
+  //   title: "التقارير",
+  //   url: "/reports",
+  //   icon: BarChartIcon,
+  //   roles: [UserRole.LEAVE_ADMIN],
+  // },
   {
     title: "التقارير",
-    url: "/reports",
-    icon: BarChartIcon,
+    icon: Lock,
     roles: [UserRole.LEAVE_ADMIN],
   },
+
   // class attendance
   {
     title: "الأقسام",
@@ -63,24 +74,29 @@ export const navMainMenu: MenuItem[] = [
     icon: ListIcon,
     roles: [UserRole.CLASS_ATTENDANCE_ADMIN],
   },
+  // leave requests
+  {
+    title: "سجلات الموظفين", // "Leave Requests Management"
+    url: "/employee-leave-requests",
+    icon: CalendarClock,
+    roles: [UserRole.LEAVE_ADMIN],
+  },
+  {
+    title: "الطلبات قيد الانتظار", // More descriptive than just "قيد الانتظار"
+    url: "/pending-leave-requests",
+    icon: HourglassIcon,
+    roles: [UserRole.LEAVE_ADMIN], // أو WC_ADMIN حسب الحاجة
+  },
 ];
 
 // Secondary navigation menu
 export const navSecondaryMenu: MenuItem[] = [
+  // leave requets list
   {
-    title: "Settings",
-    url: "#",
-    icon: SettingsIcon,
-  },
-  {
-    title: "Get Help",
-    url: "#",
-    icon: HelpCircleIcon,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: SearchIcon,
+    title: "بطاقة العطل الخاصة",
+    url: "/leave-request-list",
+    icon: CoffeeIcon,
+    roles: Object.values(UserRole),
   },
 ];
 

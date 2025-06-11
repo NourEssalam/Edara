@@ -133,7 +133,7 @@ export async function middleware(req: NextRequest) {
               },
               accessToken: responseData.accessToken,
               // refreshToken: responseData.refreshToken,
-              refreshToken: refreshToken,
+              refreshToken: refreshToken, // we will the old refresh token for now because we have concurrency issues
               browserSessionID: responseData.browserSessionID,
             };
 

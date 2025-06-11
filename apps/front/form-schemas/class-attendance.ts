@@ -131,23 +131,6 @@ export const classCourseAssign = z.object({
 export const CourseSessionSchema = z.object({
   class_id: z.string(),
   course_id: z.string(),
-  date: z.preprocess(
-    (val) =>
-      typeof val === "string" || val instanceof Date ? new Date(val) : val,
-    z.date({
-      required_error: "يرجى اختيار تاريخ وتوقيت الحصة.",
-    })
-    // .refine(
-    // // (date) => {
-    // //   const hours = date.getHours();
-    // //   return hours >= 8 && hours < 18; // 18 = 6pm
-    // // },
-    // {
-    //   message: "يجب أن يكون توقيت الحصة بين الساعة 8 صباحًا و6 مساءً.",
-    // }
-    // )
-  ),
-
   topic: z.preprocess(
     (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
     z

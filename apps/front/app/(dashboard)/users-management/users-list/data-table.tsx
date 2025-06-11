@@ -43,7 +43,7 @@ import {
   translateRole,
   translateStatus,
   translateUserData,
-} from "@/lib/translations/users";
+} from "@/lib/translations/enums";
 // type Meta = {
 //   total: number;
 //   page: number;
@@ -203,7 +203,11 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className="direction-rtl text-center min-w-[120px]"
+                      className={`direction-rtl text-center ${
+                        header.id === "إجراءات"
+                          ? "min-w-[40px] w-20"
+                          : "min-w-[120px]"
+                      }`}
                     >
                       {header.isPlaceholder
                         ? null

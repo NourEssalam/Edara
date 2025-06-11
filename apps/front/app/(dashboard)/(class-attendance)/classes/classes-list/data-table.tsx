@@ -75,6 +75,7 @@ export function DataTable<TData, TValue>({
   });
 
   // Handle row click
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleRowClick = (row: any) => {
     // Prevent navigation when clicking on action buttons
     if (onRowClick) {

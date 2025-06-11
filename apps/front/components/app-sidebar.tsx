@@ -35,6 +35,8 @@ export async function AppSidebar({
 
   const role = session.user.role;
   const mainNav = filterMenuByRole(navMainMenu, role);
+  const secondaryNav = filterMenuByRole(navSecondaryMenu, role);
+  // const documentsNav = filterMenuByRole(documentMenu, role);
 
   return (
     <Sidebar side="right" collapsible="offcanvas" {...props}>
@@ -53,6 +55,10 @@ export async function AppSidebar({
       </SidebarHeader>
       <SidebarContent dir="rtl">
         <NavMain items={mainNav} />
+        <NavSecondary
+          items={secondaryNav}
+          className="mt-auto border px-4 rounded"
+        />
         {/* <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
