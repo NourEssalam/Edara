@@ -2,7 +2,7 @@ import { z } from "zod";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 import { LeaveType } from "@repo/shared-types";
-import { parseLocalDate, parseToLocalMidnight } from "@/lib/formatDates";
+import { parseToLocalMidnight } from "@/lib/formatDates";
 
 const currentYear = new Date().getFullYear();
 const today = new Date();
@@ -106,4 +106,11 @@ export const CancelRequestFormSchema = z.object({
   requestId: z.string(),
   full_name: z.string(),
   confirm_full_name: z.string(),
+});
+
+export const rejectRequestSchema = z.object({
+  requestId: z.string().uuid(),
+  userId: z.string(),
+  adminId: z.string(),
+  reason: z.string().min(1, "السبب مطلوب").trim(),
 });

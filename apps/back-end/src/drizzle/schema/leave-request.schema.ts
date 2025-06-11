@@ -11,6 +11,7 @@ import {
 import { users } from './users.schema';
 import { relations } from 'drizzle-orm';
 import { LeaveType, RequestStatus } from '@repo/shared-types';
+import { requestRejections } from './request-rejections.schema';
 
 export const leaveTypeEnum = pgEnum(
   'leave_type',
@@ -40,7 +41,7 @@ export const leaveRequests = pgTable('leave_requests', {
   leaveYear: integer('leave_year').notNull(),
   leaveAddress: text('leave_address').notNull(),
   postalCode: varchar('postal_code', { length: 5 }).notNull(),
-  phone: varchar('phone', { length: 8 }).notNull(),
+  phone: varchar('phone').notNull(),
   attachedDocs: text('attached_docs'),
   requestStatus: statusEnum('request_status').default('PENDING'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -51,4 +52,5 @@ export const leaveRequestsRelations = relations(leaveRequests, ({ one }) => ({
     fields: [leaveRequests.userId],
     references: [users.id],
   }),
+  rejectReason: one(requestRejections),
 }));

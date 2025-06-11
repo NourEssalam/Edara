@@ -58,9 +58,6 @@ export const users = pgTable(
 export const usersRelations = relations(users, ({ one, many }) => ({
   passwordResetTokens: one(passwordResetTokens),
   browserSessions: many(browserSessions),
-  teacher: one(teachers, {
-    fields: [users.id],
-    references: [teachers.user_id],
-  }),
+  teacher: one(teachers),
   leaveRequests: many(leaveRequests),
 }));

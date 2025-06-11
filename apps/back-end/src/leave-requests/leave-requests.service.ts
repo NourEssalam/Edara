@@ -12,6 +12,7 @@ import { users } from 'src/drizzle/schema/users.schema';
 import { eq, and } from 'drizzle-orm';
 import { RequestStatus } from '@repo/shared-types';
 import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
+import { requestRejections } from 'src/drizzle/schema/request-rejections.schema';
 @Injectable()
 export class LeaveRequestsService {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
@@ -175,5 +176,74 @@ export class LeaveRequestsService {
       console.log(error);
       throw new InternalServerErrorException('حدث خطاء في تحديث طلب الإجازة');
     }
+  }
+
+  // all pending requests
+  async getAllPendingLeaveRequests() {
+    const pendingRequest = await this.db
+      .select()
+      .from(leaveRequests)
+      .where(eq(leaveRequests.requestStatus, RequestStatus.PENDING));
+
+    // get the user real name and add it to the pending request
+    const pendingRequestWithUser = await Promise.all(
+      pendingRequest.map(async (req) => {
+        const user = await this.db
+          .select({ name: users.full_name })
+          .from(users)
+          .where(eq(users.id, req.userId));
+        return {
+          ...req,
+          userName: user[0]?.name,
+        };
+      }),
+    );
+    return pendingRequestWithUser;
+  }
+
+  async getLeaveRequestDetails(requestId: string, userId: number) {
+    const leaveRequest = await this.db
+      .select()
+      .from(leaveRequests)
+      .where(
+        and(eq(leaveRequests.userId, userId), eq(leaveRequests.id, requestId)),
+      );
+    if (!leaveRequest) {
+      throw new NotFoundException('طلب الإجازة غير موجود');
+    }
+    return leaveRequest[0];
+  }
+
+  // refuse leave request
+  async refuseLeaveRequest(refuseLeaveRequestDto: {
+    requestId: string;
+    userId: number;
+    adminId: number;
+    reason: string;
+  }) {
+    const { requestId, userId, adminId, reason } = refuseLeaveRequestDto;
+    const leaveRequest = await this.db
+      .select()
+      .from(leaveRequests)
+      .where(
+        and(eq(leaveRequests.userId, userId), eq(leaveRequests.id, requestId)),
+      );
+    if (!leaveRequest) {
+      throw new NotFoundException('طلب الإجازة غير موجود');
+    }
+    // update leave request status
+    await this.db
+      .update(leaveRequests)
+      .set({ requestStatus: RequestStatus.REJECTED })
+      .where(
+        and(eq(leaveRequests.userId, userId), eq(leaveRequests.id, requestId)),
+      );
+    const result = await this.db.insert(requestRejections).values({
+      requestId,
+      userId,
+      adminId,
+      reason,
+    });
+    return result;
   }
 }

@@ -83,6 +83,7 @@ export const navMainMenu: MenuItem[] = [
   },
   {
     title: "الطلبات قيد الانتظار", // More descriptive than just "قيد الانتظار"
+    url: "/pending-leave-requests",
     icon: HourglassIcon,
     roles: [UserRole.LEAVE_ADMIN], // أو WC_ADMIN حسب الحاجة
   },

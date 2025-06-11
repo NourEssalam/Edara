@@ -57,8 +57,7 @@ export class CreateLeaveRequestDto {
   postalCode!: string;
 
   @IsOptional()
-  @IsString({ message: 'رقم الهاتف يجب أن لا يتجاوز 8 أرقام' })
-  @MaxLength(8, { message: 'رقم الهاتف يجب أن لا يتجاوز 8 أرقام' })
+  @IsString()
   phone!: string;
 
   @IsOptional()

@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -43,9 +42,6 @@ export function DeleteUserDialog({
           setOpen={setOpen}
           setDropdownOpen={setDropdownOpen}
         />
-        <DialogFooter>
-          {/* <Button type="submit">Save changes</Button> */}
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
