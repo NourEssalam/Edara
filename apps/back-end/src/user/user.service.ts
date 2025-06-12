@@ -51,10 +51,7 @@ export class UserService {
       users,
       eq(users.role, 'SUPER_ADMIN'),
     );
-    console.log('superAdmins', superAdmins);
-    if (superAdmins === 1) {
-      throw new NotFoundException('يوجد مشرف عام واحد فقط، لا يمكنك حذفه');
-    }
+
     return superAdmins;
   }
 
@@ -166,6 +163,16 @@ export class UserService {
   }
 
   async deleteUserBySuperAdmin(userId: number) {
+    const super_admins = await this.countSuperAdmins();
+    const userToDelete = await this.findOneById(userId);
+    if (!userToDelete) {
+      throw new NotFoundException('User not found');
+    }
+    if (super_admins === 1 && userToDelete.role === 'SUPER_ADMIN') {
+      console.log('super_admins', super_admins);
+      console.log('userToDelete.role', userToDelete.role);
+      throw new NotFoundException('يوجد مشرف عام واحد فقط، لا يمكنك حذفه');
+    }
     return await this.db.delete(users).where(eq(users.id, userId));
   }
 

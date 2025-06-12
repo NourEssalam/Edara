@@ -1,6 +1,6 @@
 import Container from "@/components/custom-ui/common/Container";
 import Link from "next/link";
-import { Calendar, FileText, ArrowRight, ArrowLeft } from "lucide-react";
+import { Calendar, FileText, ArrowLeft } from "lucide-react";
 import {
   Card,
   CardContent,
