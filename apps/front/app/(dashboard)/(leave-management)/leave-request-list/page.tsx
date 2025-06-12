@@ -21,7 +21,7 @@ export default async function Page() {
   return (
     <Container className="flex flex-col gap-8 overflow-hidden">
       <div dir="rtl" className="flex justify-between">
-        <h1 className="text-2xl">بطاقات العطل الخاصة بيك</h1>
+        <h1 className="text-2xl">بطاقات العطل الخاصة بك</h1>
       </div>
 
       <div dir="rtl">
