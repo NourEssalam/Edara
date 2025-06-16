@@ -33,16 +33,16 @@ export default async function ProfilePage() {
     <div className="flex flex-col gap-4">
       <section className="grid  md:grid-cols-[30%_70%] gap-4 w-full">
         <div className="flex flex-col">
-          <h1>Essential Info</h1>
-          <p>Change your essential information</p>
+          <h1>المعلومات الأساسية</h1>
+          <p>قم بتغيير معلوماتك الأساسية</p>
         </div>
         <EssentialsInfoUserForm data={data} />
       </section>
       <Separator />
       <section className="grid  md:grid-cols-[30%_70%] gap-4 w-full">
         <div className="flex flex-col">
-          <h1>Essential Info</h1>
-          <p>Change your essential information</p>
+          <h1>كلمة المرور</h1>
+          <p>قم بتغيير كلمة المرور الخاصة بك</p>
         </div>
         <ChangePasswordUserForm data={data} />
       </section>

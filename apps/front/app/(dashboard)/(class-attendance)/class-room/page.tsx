@@ -19,7 +19,7 @@ export default async function ClassRoomPage() {
     }
   );
   if (!getTeacherClasses.ok) {
-    return <p>Something went wrong</p>;
+    return <p>حدث خطأ ما</p>;
   }
   const data = await getTeacherClasses.json();
   return (

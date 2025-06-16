@@ -123,7 +123,7 @@ export function StudentsAttendanceTable({
           className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors"
           dir="ltr"
         >
-          &larr; Go back to class room
+          &larr; العودة إلى الوراء
         </Link>
       </div>
 

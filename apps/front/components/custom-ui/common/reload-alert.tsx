@@ -70,16 +70,16 @@ export default function NavigationGuard({ submitted }: { submitted: boolean }) {
     <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
+          <AlertDialogTitle>هل أنت متأكد أنك تريد المغادرة؟</AlertDialogTitle>
           <AlertDialogDescription>
-            You have unsaved changes. They will be lost if you leave this page.
+            لديك تغييرات غير محفوظة. سيتم فقدانها إذا غادرت هذه الصفحة.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setShowDialog(false)}>
-            Stay
+            البقاء
           </AlertDialogCancel>
-          <AlertDialogAction onClick={handleLeave}>Leave</AlertDialogAction>
+          <AlertDialogAction onClick={handleLeave}>المغادرة</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
