@@ -1,13 +1,12 @@
-import { ClassData } from "@/app/(dashboard)/(class-attendance)/classes/classes-list/columns";
 import { UserData } from "@/app/(dashboard)/users-management/users-list/columns";
 import { RequestStatus, UserRole, UserStatus } from "@repo/shared-types";
 
 // Role translations
 export const roleTranslations: Record<UserRole, string> = {
   SUPER_ADMIN: "مشرف عام",
-  LEAVE_ADMIN: "مسؤول الإجازات",
+  LEAVE_ADMIN: "مسؤول العطل",
   WORK_CERTIFICATION_ADMIN: "مسؤول شهادات العمل",
-  CLASS_ATTENDANCE_ADMIN: "مسؤول حضور الطلاب في الفصل",
+  CLASS_ATTENDANCE_ADMIN: "مسؤول حضور الطلبة في القسم",
   TEACHER: "أستاذ", // I'm assuming this is the Arabic translation
   GENERAL_STAFF: "موظف",
   // Add any other roles from your enum that might not be in the form

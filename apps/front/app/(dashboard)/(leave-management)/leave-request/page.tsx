@@ -9,7 +9,7 @@ export default async function Page() {
   const userId = String(session?.user.id);
   return (
     <Container>
-      <h1>leave request</h1>
+      <h1 className="text-2xl mb-8">مطلب عطلة</h1>
       <CreateLeaveRequestForm
         userId={userId}
         userRole={session?.user.role as UserRole}

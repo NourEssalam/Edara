@@ -215,13 +215,13 @@ export function CreateUserForm({ setOpen }: ChildProps) {
                       مشرف عام
                     </SelectItem>
                     <SelectItem value={UserRole.LEAVE_ADMIN}>
-                      مسؤول الإجازات
+                      مسؤول العطل
                     </SelectItem>
                     <SelectItem value={UserRole.WORK_CERTIFICATION_ADMIN}>
                       مسؤول شهادات العمل
                     </SelectItem>
                     <SelectItem value={UserRole.CLASS_ATTENDANCE_ADMIN}>
-                      مسؤول حضور الطلاب في الفصل
+                      مسؤول حضور الطلبة في القسم
                     </SelectItem>
                     <SelectItem value={UserRole.TEACHER}>أستاذ</SelectItem>
                     <SelectItem value={UserRole.GENERAL_STAFF}>موظف</SelectItem>

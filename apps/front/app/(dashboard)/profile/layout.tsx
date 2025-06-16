@@ -3,8 +3,8 @@ import ProfileMenu from "@/components/custom-ui/profile/profile-menu";
 import { ReactNode } from "react";
 
 const navItems = [
-  { name: "Account", href: "/profile" },
-  { name: "Notifications", href: "/profile/notifications" },
+  { name: "الحساب", href: "/profile" },
+  { name: "الإشعارات", href: "/profile/notifications" },
 ];
 
 export default async function SettingsLayout({

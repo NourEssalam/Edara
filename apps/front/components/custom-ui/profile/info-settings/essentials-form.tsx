@@ -159,7 +159,7 @@ export function EssentialsInfoUserForm({ data }: any) {
               setFormDisabled(true);
             }}
           >
-            cancel
+            إلغاء
           </Button>
           <Button
             disabled={isPending}
@@ -173,7 +173,7 @@ export function EssentialsInfoUserForm({ data }: any) {
                 : "bg-sky-700 text-white hover:text-black"
             }
           >
-            edit
+            تعديل
           </Button>
         </form>
       </Form>
